@@ -1,0 +1,3495 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>main</title>
+<style>
+* {
+box-sizing: border-box;
+}
+html,
+body {
+width: 100%;
+height: 100%;
+overflow: hidden;
+}
+body {
+margin: 0;
+font-family:'Arial', sans-serif;
+background: #f6ead4;
+}
+
+/* =========================
+공용 검은버튼
+========================= */
+.black-game-btn {
+font-weight: bold;
+border: 2px solid #111;
+background: #222;
+color: white;
+cursor: pointer;
+box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+letter-spacing: 0.2px;
+transition: background 0.12s ease, transform 0.1s ease, box-shadow 0.1s ease;
+}
+.black-game-btn:hover {
+background: #333;
+box-shadow: 0 4px 10px rgba(0,0,0,0.22);
+}
+.black-game-btn:active {
+transform: translateY(1px);
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* =========================
+팁박스
+========================= */
+.tips-box {
+position: fixed;
+top: 14px;
+right: 450px;
+width: 150px;
+min-height: 63px;
+background: white;
+border: 3px solid #444444;
+padding: 10px 12px;
+z-index: 9999;
+}
+.tips-row {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+#tipTotalText {
+font-size: 33px;
+color: #222;
+font-family: 'Franklin Gothic', Arial, sans-serif;
+font-weight: bold;
+}
+
+/* =========================
+메인화면 
+========================= */
+#mainScreen {
+position: relative;
+width: 100%;
+min-height: 100vh;
+overflow: hidden;
+display: flex;
+justify-content: center;
+align-items: center;
+background: #FFFFFF;
+font-family: Arial, sans-serif;
+}
+#mainScreen .main-card {
+position: relative;
+z-index: 10;
+width: 490px;
+background: rgba(255, 255, 255, 0.96);
+border: 6px solid #3f3328;
+border-radius: 14px;
+padding: 55px 40px;
+text-align: center;
+box-shadow:
+  0 0 0 4px #f3c15f,
+  0 0 0 8px rgba(63, 51, 40, 0.95),
+  0 8px 0 rgba(63, 51, 40, 0.9),
+  0 20px 32px rgba(0,0,0,0.24),
+  inset 0 3px 0 rgba(255,255,255,0.95),
+  inset 0 -5px 0 rgba(63,51,40,0.08);
+overflow: hidden;
+}
+#mainScreen .main-card::after {
+content: "";
+position: absolute;
+inset: 0;
+background: linear-gradient(135deg, rgba(255, 207, 87, 0.14), transparent 36%, transparent 64%, rgba(205, 49, 58, 0.08));
+pointer-events: none;
+z-index: 0;
+}
+#mainScreen .main-title {
+position: relative;
+z-index: 1;
+font-size: 52px;
+font-weight: bold;
+color: #222222;
+margin-bottom: 45px;
+}
+#mainScreen #playBtn {
+position: relative;
+font-size: 36px;
+font-weight: bold;
+color: white;
+background: linear-gradient(180deg, #ffcf57 0%, #ff7a2f 45%, #d73822 100%);
+border: 4px solid #6b1b12;
+border-radius: 18px;
+padding: 17px 62px;
+cursor: pointer;
+letter-spacing: 1px;
+text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+box-shadow: 0 8px 0 #7a1d13, 0 14px 24px rgba(0,0,0,0.28);
+overflow: hidden;
+transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+}
+#mainScreen #playBtn::before {
+content: "";
+position: absolute;
+top: 0;
+left: -80%;
+width: 60%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+transform: skewX(-20deg);
+transition: left 0.45s ease;
+}
+#mainScreen #playBtn:hover {
+filter: brightness(1.08);
+transform: translateY(-3px) scale(1.03);
+box-shadow: 0 11px 0 #7a1d13, 0 18px 28px rgba(0,0,0,0.32);
+}
+#mainScreen #playBtn:hover::before {
+left: 125%;
+}
+#mainScreen #playBtn:active {
+transform: translateY(5px) scale(0.99);
+box-shadow: 0 3px 0 #7a1d13, 0 8px 14px rgba(0,0,0,0.25);
+}
+
+/* =========================
+태극기
+========================= */
+:root {
+--blue: #0047A0;
+--red: #CD313A;
+--black: #000000;
+--white: #FFFFFF;
+--trigrams-location-width: calc(cos(atan2(2, 3)) * (11 / 18));
+--trigrams-location-height: calc(sin(atan2(2, 3)) * (11 / 12));
+--brick-size: calc(1 / 6);
+}
+#mainScreen .taegeuk-background {
+position: absolute;
+inset: 0;
+z-index: 0;
+overflow: hidden;
+pointer-events: none;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+#mainScreen .taegeuk-background .wrap {
+position: relative;
+width: max(100vw, 150vh);
+aspect-ratio: 3 / 2;
+height: auto;
+overflow: hidden;
+flex-shrink: 0;
+}
+#mainScreen .taegeuk-background .taegeukgi {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: var(--white);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+#mainScreen .taegeuk-background .taegeuk {
+position: absolute;
+width: calc((1 / 3) * 100%);
+height: 50%;
+background: linear-gradient(var(--red) 50%, var(--blue) 0);
+border-radius: 50%;
+transform: rotate(calc(atan2(2, 3)));
+}
+#mainScreen .taegeuk-background .taegeuk::before {
+position: absolute;
+content: "";
+width: 50%;
+height: 50%;
+border-radius: 50%;
+background-color: var(--red);
+margin: 25% 0;
+}
+#mainScreen .taegeuk-background .taegeuk::after {
+position: absolute;
+content: "";
+width: 50%;
+height: 50%;
+border-radius: 50%;
+background-color: var(--blue);
+margin: 25% 50%;
+}
+#mainScreen .taegeuk-background .trigrams {
+position: absolute;
+width: calc((var(--trigrams-location-width) + var(--brick-size)) * 100%);
+height: calc((var(--trigrams-location-height) + var(--brick-size)) * 100%);
+display: grid;
+grid-template-rows: repeat(2, 1fr);
+gap: calc(((var(--trigrams-location-width) - var(--brick-size)) / (var(--trigrams-location-width) + var(--brick-size))) * 100%);
+}
+#mainScreen .taegeuk-background .top,
+#mainScreen .taegeuk-background .bottom {
+display: flex;
+justify-content: space-between;
+}
+#mainScreen .taegeuk-background .sky,
+#mainScreen .taegeuk-background .water,
+#mainScreen .taegeuk-background .fire,
+#mainScreen .taegeuk-background .earth {
+width: calc((var(--brick-size) / (var(--trigrams-location-width) + var(--brick-size))) * 100%);
+display: grid;
+column-gap: calc((1 / 12) * 100%);
+row-gap: calc((1 / 8) * 100%);
+grid-template-rows: repeat(3, 1fr);
+grid-template-columns: repeat(2, 1fr);
+}
+#mainScreen .taegeuk-background .brick {
+background-color: var(--black);
+}
+#mainScreen .taegeuk-background .sky {
+grid-template-columns: 1fr;
+}
+#mainScreen .taegeuk-background .water {
+grid-template-columns: repeat(2, 1fr);
+}
+#mainScreen .taegeuk-background .water .brick:nth-child(3) {
+grid-column: span 2;
+}
+#mainScreen .taegeuk-background .fire {
+grid-template-columns: repeat(2, 1fr);
+}
+#mainScreen .taegeuk-background .fire .brick:first-child,
+#mainScreen .taegeuk-background .fire .brick:last-child {
+grid-column: span 2;
+}
+#mainScreen .taegeuk-background .sky,
+#mainScreen .taegeuk-background .earth {
+transform: rotate(atan2(3, -2));
+}
+#mainScreen .taegeuk-background .water,
+#mainScreen .taegeuk-background .fire {
+transform: rotate(atan2(3, 2));
+}
+#mainScreen .floating-bowl-wrap {
+position: absolute;
+width: 250px;
+height: 250px;
+background: transparent;
+border: none;
+box-shadow: none;
+border-radius: 0;
+overflow: visible;
+z-index: 1;
+pointer-events: none;
+left: 0;
+top: 0;
+}
+#mainScreen .floating-bowl-wrap img {
+width: 100%;
+height: 100%;
+object-fit: contain;
+display: block;
+padding: 0;
+mix-blend-mode: multiply;
+}
+
+/* =========================
+손님화면
+========================= */
+#customerScreen {
+  background: #f5f5f5;
+  font-family: 'Franklin Gothic', sans-serif;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+#customerScreen > div {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1904px;
+  height: 906px;
+  overflow: visible;
+  transform: translate(-50%, -50%) scale(var(--customer-scale, 1));
+  transform-origin: center center;
+}
+#customerScreen .scene {
+  position: relative;
+  width: 1904px;
+  height: 906px;
+  max-width: none;
+  overflow: visible;
+}
+#customerImage {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  /* Show the full customer background image without cropping the top or bottom. */
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+}
+#customerScreen .speech-bubble {
+position: absolute;
+top: 150px !important;
+right: 650px;
+width: 360px;
+min-height: 150px;
+background: white;
+border: 4px solid #222;
+border-radius: 28px;
+padding: 20px 22px;
+box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+z-index: 10;
+}
+#customerScreen .speech-bubble::after {
+content: "";
+position: absolute;
+left: 290px;
+bottom: -24px;
+width: 0;
+height: 0;
+border-left: 18px solid transparent;
+border-right: 18px solid transparent;
+border-top: 24px solid white;
+filter: drop-shadow(0 4px 0 #222);
+}
+#customerScreen .bubble-text {
+font-size: 25px;
+line-height: 1.45;
+color: #222;
+white-space: pre-wrap;
+}
+#customerScreen .controls {
+position: absolute;
+top: 780px;
+right: 30px;
+display: flex;
+gap: 12px;
+flex-wrap: wrap;
+z-index: 11;
+}
+#customerScreen .black-game-btn {
+padding: 14px 21px;
+font-size: 20px;
+border-radius: 10px;
+z-index: 10;
+}
+#customerScreen .floating-reward {
+position: absolute;
+width: 50px !important;
+height: auto !important;
+z-index: 20;
+pointer-events: none;
+opacity: 0;
+animation: floatUpAndDisappear 1.2s ease-out forwards;
+}
+@keyframes floatUpAndDisappear {
+0% {
+transform: translateY(0) scale(0.8);
+opacity: 0;
+}
+15% {
+opacity: 1;
+}
+100% {
+transform: translateY(-130px) scale(1.1);
+opacity: 0;
+}
+}
+
+/* =========================
+조리화면
+========================= */
+#cookScreen {
+  display: none;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+  background-color: white;
+  overflow: hidden;
+}
+#cookScreen .wrap {
+position: absolute;
+left: 50%;
+top: 50%;
+width: 1904px;
+height: 906px;
+padding: 24px;
+display: flex;
+align-items: flex-start;
+gap: 24px;
+margin: 0;
+background-image: url("PR.CBG.jpg");
+background-size: 100% 100%;
+background-position: center center;
+background-repeat: no-repeat;
+transform: translate(-50%, -50%) scale(var(--cook-scale, 1));
+transform-origin: center center;
+}
+#cookScreen .stage {
+width: 1440px;
+height: 834px;
+position: relative;
+overflow: hidden;
+user-select: none;
+flex-shrink: 0;
+background-image: url("PR.background.jpg");
+background-size: cover;
+background-position: calc(50% + 5px) center;
+background-repeat: no-repeat;
+}
+#cookScreen .side-panel {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 16px;
+flex-shrink: 0;
+position: relative;
+margin-top: 95px;
+}
+#cookScreen .order-list {
+width: 300px;
+height: auto;
+display: block;
+flex-shrink: 0;
+}
+#cookScreen .timer-box {
+position: absolute;
+top: -95px;
+left: 0;
+width: 170px;
+min-height: 70px;
+background: linear-gradient(180deg, #fffdf8 0%, #f7ead6 55%, #ead5b7 100%);
+border: 3px solid #2f2a22;
+border-right: 5px solid #7d6748;
+border-bottom: 7px solid #6a553a;
+border-radius: 16px;
+padding: 10px 13px 7px;
+z-index: 999;
+box-shadow:
+0 7px 0 #3a2f21,
+0 13px 18px rgba(0,0,0,0.26),
+inset 0 3px 0 rgba(255,255,255,0.95),
+inset 0 -5px 0 rgba(0,0,0,0.08);
+}
+#cookScreen .timer-row {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 11px;
+}
+#cookScreen .timer-label {
+width: 40px;
+height: auto;
+filter: drop-shadow(0 3px 1px rgba(0,0,0,0.25));
+}
+#cookScreen #timerText {
+font-family: 'Franklin Gothic', Arial, sans-serif;
+font-size: 38px;
+font-weight: bold;
+line-height: 1;
+color: #1f1f1f;
+letter-spacing: 1px;
+text-shadow:
+0 2px 0 rgba(255,255,255,0.95),
+0 3px 3px rgba(0,0,0,0.16);
+}
+#cookScreen .pause-btn {
+position: absolute;
+top: -95px;
+left: 190px;
+width: 125px;
+min-height: 70px;
+background: linear-gradient(180deg, #fffdf8 0%, #f7ead6 55%, #ead5b7 100%);
+border: 3px solid #2f2a22;
+border-right: 5px solid #7d6748;
+border-bottom: 7px solid #6a553a;
+border-radius: 16px;
+padding: 0 14px;
+z-index: 999;
+box-shadow:
+0 7px 0 #3a2f21,
+0 13px 18px rgba(0,0,0,0.26),
+inset 0 3px 0 rgba(255,255,255,0.95),
+inset 0 -5px 0 rgba(0,0,0,0.08);
+font-family: 'Franklin Gothic', Arial, sans-serif;
+font-size: 24px;
+font-weight: bold;
+letter-spacing: 1px;
+line-height: 1;
+color: #1f1f1f;
+text-shadow:
+0 2px 0 rgba(255,255,255,0.95),
+0 3px 3px rgba(0,0,0,0.16);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: transform 0.1s ease, filter 0.1s ease, box-shadow 0.1s ease;
+}
+#cookScreen .pause-btn:hover {
+filter: brightness(1.04);
+transform: translateY(-1px);
+}
+#cookScreen .pause-btn:active {
+transform: translateY(5px);
+box-shadow:
+0 2px 0 #3a2f21,
+0 7px 12px rgba(0,0,0,0.24),
+inset 0 3px 0 rgba(255,255,255,0.82),
+inset 0 -3px 0 rgba(0,0,0,0.08);
+}
+#cookScreen .complete-btn {
+padding: 12px 22px;
+font-size: 16px;
+border-radius: 10px;
+}
+#cookScreen .draggable {
+position: absolute;
+left: 0;
+top: 0;
+cursor: grab;
+z-index: 3;
+touch-action: none;
+transform: translate(var(--x, 0px), var(--y, 0px)) scale(var(--scale, 1));
+transform-origin: top left;
+will-change: transform;
+}
+#cookScreen .draggable[data-source="true"] {
+opacity: 0;
+}
+#cookScreen .bowl {
+position: absolute;
+left: 590px;
+top: 330px;
+width: 300px;
+height: 300px;
+border: 3px solid #555;
+border-radius: 50%;
+background: rgba(220,220,220,0.35);
+z-index: 1;
+opacity: 0;
+}
+#cookScreen .draggable:active {
+cursor: grabbing;
+}
+body.hide-cursor,
+body.hide-cursor * {
+cursor: none !important;
+}
+#cookScreen .order-list-wrap {
+position: relative;
+width: 270px;
+flex-shrink: 0;
+}
+#cookScreen .cook-order-text {
+position: absolute;
+top: 50px;
+left: 50px;
+right: 18px;
+font-size: 22px;
+color: #222;
+white-space: pre-wrap;
+pointer-events: none;
+z-index: 2;
+line-height: 1.56;
+font-weight: bold;
+}
+#cookScreen .to-egg-btn {
+position: fixed;
+right: 24px;
+bottom: 24px;
+width: 70px;
+height: 54px;
+padding: 0;
+border-radius: 12px;
+font-size: 34px;
+z-index: 999;
+box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+}
+
+/* =========================
+결과화면
+========================= */
+#cookScreen .cook-result-overlay {
+position: fixed;
+inset: 0;
+background: rgba(255, 255, 255, 0.72);
+display: none;
+justify-content: center;
+align-items: center;
+z-index: 3000;
+font-family: 'Franklin Gothic', Arial, sans-serif;
+pointer-events: auto;
+}
+#cookScreen .cook-result-card {
+width: 430px;
+background: #ffffff;
+border: 6px solid #444444;
+padding: 30px 34px 28px;
+box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+}
+#cookScreen .cook-result-title {
+text-align: center;
+font-size: 34px;
+color: #222222;
+margin-bottom: 8px;
+font-weight: bold;
+}
+#cookScreen .cook-result-row {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 18px;
+padding: 12px 0;
+font-size: 23px;
+color: #444444;
+}
+#cookScreen .cook-result-label {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+#cookScreen .cook-result-detail {
+font-size: 15px;
+color: #777777;
+font-family: Arial, sans-serif;
+}
+#cookScreen .cook-result-tip {
+min-width: 72px;
+text-align: right;
+font-size: 24px;
+font-weight: bold;
+color: #222222;
+}
+#cookScreen .cook-result-divider {
+height: 2px;
+background: #e8e8e8;
+margin: 16px 0;
+}
+#cookScreen .cook-result-total {
+padding-top: 10px;
+font-size: 26px;
+font-weight: bold;
+color: #222222;
+}
+#cookScreen .cook-result-total .cook-result-tip {
+color: #222222;
+font-size: 30px;
+}
+#cookScreen #cookResultNextBtn {
+width: 100%;
+margin-top: 26px;
+padding: 15px 0;
+border-radius: 12px;
+font-size: 22px;
+}
+
+/* =========================
+계란갈비
+========================= */
+#eggScreen {
+display: none;
+width: 100%;
+min-height: 100vh;
+background: #ddd;
+justify-content: center;
+align-items: center;
+font-family: Arial, sans-serif;
+padding: 18px;
+}
+#eggScreen .egg-galbi-screen-wrap {
+display: flex;
+align-items: flex-start;
+justify-content: center;
+gap: 24px;
+flex-wrap: wrap;
+width: 100%;
+}
+#eggScreen .mini-game-card {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 14px;
+}
+#eggScreen .mini-game-title {
+font-size: 24px;
+font-weight: bold;
+color: #222;
+background: white;
+border-radius: 12px;
+padding: 8px 22px;
+box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+#eggScreen canvas {
+background: #e8e2d6;
+border-radius: 14px;
+box-shadow: 0 10px 30px rgba(0,0,0,.15);
+height: auto;
+cursor: pointer;
+}
+#eggScreen #eggCanvas {
+width: min(44vw, 520px);
+}
+#eggScreen #galbiCanvas {
+width: min(47vw, 560px);
+}
+#eggScreen .egg-button-row,
+#eggScreen .galbi-button-row {
+display: flex;
+gap: 12px;
+flex-wrap: wrap;
+justify-content: center;
+}
+#eggScreen button:not(.black-game-btn) {
+width: 105px;
+padding: 10px 0;
+border: none;
+border-radius: 12px;
+background: #ffffff;
+box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+font-size: 15px;
+font-weight: bold;
+cursor: pointer;
+}
+#eggScreen .galbi-button-row button {
+width: 120px;
+}
+#eggScreen button:not(.black-game-btn):disabled {
+opacity: 0.45;
+cursor: default;
+}
+#eggScreen .egg-back-btn {
+position: fixed;
+left: 24px;
+bottom: 24px;
+width: 70px;
+height: 54px;
+padding: 0;
+border-radius: 12px;
+font-size: 34px;
+z-index: 999;
+box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+}
+@media (max-width: 1050px) {
+#eggScreen #eggCanvas,
+#eggScreen #galbiCanvas {
+width: min(92vw, 560px);
+}
+}
+
+/* =========================
+정지화면스타일
+========================= */
+#pauseScreen {
+display: none;
+width: 100%;
+min-height: 100vh;
+background: white;
+justify-content: center;
+align-items: center;
+font-family: 'Franklin Gothic', sans-serif;
+}
+#pauseScreen .pause-card {
+display: flex;
+gap: 24px;
+}
+#pauseScreen button {
+padding: 18px 34px;
+font-size: 28px;
+font-weight: bold;
+border: 6px solid #444444;
+background: white;
+color: #222;
+cursor: pointer;
+}
+#pauseScreen button:hover {
+background: #222;
+color: white;
+}
+</style>
+</head>
+<body>
+<audio id="mainBgm" src="PR.BGM.mp3" loop preload="auto"></audio>
+<audio id="buttonSound" src="PR.BS.mp3" preload="auto"></audio>
+<audio id="cookingSound" src="PR.GS.mp3" loop preload="auto"></audio>
+
+<!-- =========================
+팁상자 디브
+========================= -->
+<div class="tips-box">
+<div class="tips-row">
+<img class="tips-money-img" src="PR.money.jpg" style="width: 50px !important; height: auto !important; display: block;">
+<span id="tipTotalText">$0</span>
+</div>
+</div>
+
+<!-- =========================
+메인화면 디브
+========================= -->
+<div id="mainScreen">
+<div class="taegeuk-background" aria-hidden="true">
+<div class="wrap">
+<div class="taegeukgi" style="opacity: 0.2">
+<div class="taegeuk"></div>
+<div class="trigrams">
+<div class="top">
+<div class="sky">
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+</div>
+<div class="water">
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+</div>
+</div>
+<div class="bottom">
+<div class="fire">
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+</div>
+<div class="earth">
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+<div class="brick"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="main-card">
+<div class="main-title">Bibimbap Rush</div>
+<button id="playBtn">Play</button>
+</div>
+</div>
+
+<!-- =========================
+손님화면 디브
+========================= -->
+<div id="customerScreen">
+<div>
+<div class="scene">
+<img id="customerImage" src="PR.customer5.png" alt="Customer ordering scene" />
+<div class="speech-bubble">
+<div class="bubble-title"></div>
+<div class="bubble-text" id="orderText"></div>
+</div>
+<div class="controls">
+<button id="cookBtn" class="black-game-btn">cook</button>
+<button id="nextCustomerBtn" class="black-game-btn" style="display: none;">next customer</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- =========================
+조리화면 디브
+========================= -->
+<div id="cookScreen">
+<div class="wrap">
+<div class="stage" id="stage">
+<div class="bowl" id="bowl"></div>
+<img class="draggable" data-source="true" src="PR.carrots.png" style="--x: 44px; --y: 41px; width: 160px; height: 113.6px;" data-original-src="PR.carrots.png">
+<img class="draggable" data-source="true" src="PR.spinach.png" style="--x: 244px; --y: 41px; width: 160px; height: 117px;" data-original-src="PR.spinach.png">
+<img class="draggable" data-source="true" src="PR.kongnamul.png" style="--x: 450px; --y: 41px; width: 160px; height: 117.07px;" data-original-src="PR.kongnamul.png">
+<img class="draggable" data-source="true" src="PR.mushroom.png" style="--x: 651px; --y: 41px; width: 160px; height: 128px;" data-original-src="PR.mushroom.png">
+<img class="draggable" data-source="true" src="PR.gosari.png" style="--x: 852px; --y: 41px; width: 160px; height: 124.86px;" data-original-src="PR.gosari.png">
+<img class="draggable" data-source="true" src="PR.beef.png" style="--x: 44px; --y: 229px; width: 160px; height: 121.66px;" data-original-src="PR.beef.png">
+<img class="draggable" data-source="true" src="PR.porkbelly.png" style="--x: 244px; --y: 229px; width: 160px; height: 128px;" data-original-src="PR.porkbelly.png">
+<img class="draggable" data-source="true" src="PR.zucchini.png" style="--x: 44px; --y: 420px; width: 160px; height: 128px;" data-original-src="PR.zucchini.png">
+<img class="draggable" data-source="true" src="PR.musengchae.png" style="--x: 244px; --y: 420px; width: 160px; height: 124px;" data-original-src="PR.musengchae.png">
+<img class="draggable" data-source="true" src="PR.gj.png" style="--x: 60px; --y: 664px; width: 100px; height: 78.3px; z-index: 5;" data-original-src="PR.gj.png">
+<img class="draggable" id="sesameoil" data-source="true" src="PR.sesameoil.png" style="--x: 244px; --y: 664px; width: 100px; height: 78.3px; z-index: 5;" data-original-src="PR.sesameoil.png">
+<img class="draggable" data-source="true" src="PR.whiterice.png" style="--x: 1130px; --y: 320px; width: 200px; height: 200px; z-index: 2;" data-original-src="PR.whiterice.png">
+<img class="draggable" data-source="true" src="PR.brownrice.png" style="--x: 1130px; --y: 610px; width: 200px; height: 200px; z-index: 2;" data-original-src="PR.brownrice.png">
+<img class="draggable" id="eggSource" data-source="true" src="PR.egg.png" style="--x: 1130px; --y: 41px; width: 200px; height: 170px; z-index: 4; display: none; pointer-events: none;" data-original-src="PR.egg.png" data-cooked="false" data-used="false">
+</div>
+<div class="side-panel">
+<div class="timer-box">
+<div class="timer-row">
+<img class="timer-label" src="PR.timer1.png" style="width: 40px !important; height: auto !important; display: block;">
+<span id="timerText">1:30</span>
+</div>
+</div>
+<button id="pauseBtn" class="pause-btn" type="button">PAUSE</button>
+<div class="order-list-wrap">
+<div class="cook-order-text" id="cookOrderText"></div>
+<img class="order-list" src="PR.orderList14.jpeg" style="width: 300px; height: auto;" alt="Order List">
+</div>
+<button class="complete-btn black-game-btn" id="completeBtn">Done</button>
+</div>
+</div>
+<div id="cookResultOverlay" class="cook-result-overlay">
+<div class="cook-result-card">
+<div class="cook-result-title">RESULT</div>
+<div class="cook-result-row">
+<div class="cook-result-label">
+<span>Order Accuracy</span>
+<span class="cook-result-detail" id="resultAccuracyDetail">0%</span>
+</div>
+<span class="cook-result-tip" id="resultAccuracyTip">$0</span>
+</div>
+<div class="cook-result-row">
+<div class="cook-result-label">
+<span>Speed</span>
+<span class="cook-result-detail" id="resultSpeedDetail">0:00 left</span>
+</div>
+<span class="cook-result-tip" id="resultSpeedTip">$0</span>
+</div>
+<div class="cook-result-row">
+<div class="cook-result-label">
+<span>Egg Cooking</span>
+<span class="cook-result-detail" id="resultEggDetail">not ordered</span>
+</div>
+<span class="cook-result-tip" id="resultEggTip">$0</span>
+</div>
+<div class="cook-result-row">
+<div class="cook-result-label">
+<span>Galbi Cooking</span>
+<span class="cook-result-detail" id="resultGalbiDetail">not ordered</span>
+</div>
+<span class="cook-result-tip" id="resultGalbiTip">$0</span>
+</div>
+<div class="cook-result-divider"></div>
+<div class="cook-result-row cook-result-total">
+<span>TOTAL</span>
+<span class="cook-result-tip" id="resultTotalTip">$0</span>
+</div>
+<button id="cookResultNextBtn" class="black-game-btn">NEXT</button>
+</div>
+</div>
+<button id="toEggBtn" class="to-egg-btn black-game-btn">&gt;</button>
+</div>
+
+<!-- =========================
+계란갈비 디브
+========================= -->
+<div id="eggScreen">
+<div class="egg-galbi-screen-wrap">
+<div class="mini-game-card">
+<div class="mini-game-title">Egg</div>
+<canvas id="eggCanvas" width="520" height="420"></canvas>
+<div class="egg-button-row">
+<button id="eggRemakeBtn">Remake</button>
+<button id="eggCompleteBtn">Complete</button>
+<button id="eggServeBtn">Serve</button>
+</div>
+</div>
+<div class="mini-game-card">
+<div class="mini-game-title">Galbi</div>
+<canvas id="galbiCanvas" width="560" height="460"></canvas>
+<div class="galbi-button-row">
+<button id="galbiRemakeBtn">Remake</button>
+<button id="galbiCompleteBtn">Complete</button>
+<button id="galbiServeBtn">Serve</button>
+</div>
+</div>
+</div>
+<button id="backToCookBtn" class="egg-back-btn black-game-btn">&lt;</button>
+</div>
+
+<!-- =========================
+일시정지 디브
+========================= -->
+<div id="pauseScreen">
+<div class="pause-card">
+<button id="resumeBtn">Resume</button>
+<button id="exitBtn">Exit</button>
+</div>
+</div>
+<script>
+/*
+대충흐름
+1. initializeGame()으로 게임 준비
+2. Play 버튼 -> startGameFromMain()
+3. 손님 이미지와 주문 생성 -> renderCustomerImage(), renderOrder()
+4. cook 버튼 -> startCookFromCustomer()
+5. 재료 드래그 + 계란/갈비 미니게임
+6. Done 버튼 -> finishOrderAndShowResult()
+7. NEXT 버튼 -> finishCookResultToCustomer() -> 다음 손님
+*/
+
+/* =========================
+0. 돔, 설정, 게임상태
+========================= */
+      const mainScreen = document.getElementById("mainScreen");
+      const customerScreen = document.getElementById("customerScreen");
+      const cookScreen = document.getElementById("cookScreen");
+      const eggScreen = document.getElementById("eggScreen");
+      const pauseScreen = document.getElementById("pauseScreen");
+      const mainBgm = document.getElementById("mainBgm");
+      const buttonSound = document.getElementById("buttonSound");
+      const cookingSound = document.getElementById("cookingSound");
+      const playBtn = document.getElementById("playBtn");
+      const cookBtn = document.getElementById("cookBtn");
+      const nextCustomerBtn = document.getElementById("nextCustomerBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resumeBtn = document.getElementById("resumeBtn");
+      const exitBtn = document.getElementById("exitBtn");
+      const completeBtn = document.getElementById("completeBtn");
+      const cookResultNextBtn = document.getElementById("cookResultNextBtn");
+      const toEggBtn = document.getElementById("toEggBtn");
+      const backToCookBtn = document.getElementById("backToCookBtn");
+      const orderText = document.getElementById("orderText");
+      const cookOrderText = document.getElementById("cookOrderText");
+      const timerText = document.getElementById("timerText");
+      const tipTotalText = document.getElementById("tipTotalText");
+      const tipsBox = document.querySelector(".tips-box");
+      const customerImage = document.getElementById("customerImage");
+      const stage = document.getElementById("stage");
+      const bowl = document.getElementById("bowl");
+      const eggSource = document.getElementById("eggSource");
+      const eggCanvas = document.getElementById("eggCanvas");
+      const eggCtx = eggCanvas.getContext("2d");
+      const eggRemakeBtn = document.getElementById("eggRemakeBtn");
+      const eggServeBtn = document.getElementById("eggServeBtn");
+      const eggCompleteBtn = document.getElementById("eggCompleteBtn");
+      const galbiCanvas = document.getElementById("galbiCanvas");
+      const galbiCtx = galbiCanvas.getContext("2d");
+      const galbiRemakeBtn = document.getElementById("galbiRemakeBtn");
+      const galbiServeBtn = document.getElementById("galbiServeBtn");
+      const galbiCompleteBtn = document.getElementById("galbiCompleteBtn");
+      const cookResultOverlay = document.getElementById("cookResultOverlay");
+      const resultAccuracyDetail = document.getElementById(
+        "resultAccuracyDetail",
+      );
+      const resultAccuracyTip = document.getElementById("resultAccuracyTip");
+      const resultSpeedDetail = document.getElementById("resultSpeedDetail");
+      const resultSpeedTip = document.getElementById("resultSpeedTip");
+      const resultEggDetail = document.getElementById("resultEggDetail");
+      const resultEggTip = document.getElementById("resultEggTip");
+      const resultGalbiDetail = document.getElementById("resultGalbiDetail");
+      const resultGalbiTip = document.getElementById("resultGalbiTip");
+      const resultTotalTip = document.getElementById("resultTotalTip");
+
+      mainBgm.volume = 0.45;
+      buttonSound.volume = 0.75;
+      cookingSound.volume = 0.65;
+      const customerImageCount = 7;
+      let lastCustomerImageNumber = null;
+      let currentCustomerImageNumber = null;
+      let customerTypingTimer = null;
+      const bowlImages = [
+        "PR.bowl1.png",
+        "PR.bowl2.png",
+        "PR.bowl3.png",
+        "PR.bowl4.png",
+        "PR.bowl5.png",
+      ];
+      const mainBowlSize = 250;
+      const mainBowlData = [];
+      const TOTAL_TIME = 90;
+      const riceOptions = ["white rice", "brown rice"];
+      const mandatorySauces = ["gochujang", "sesame oil"];
+      const optionalIngredients = [
+        "pork belly",
+        "spinach",
+        "beef",
+        "musengchae",
+        "zucchini",
+        "gosari",
+        "kongnamul",
+        "mushroom",
+        "carrots",
+      ];
+      const koreanIngredientNames = {
+        "white rice": "흰쌀밥",
+        "brown rice": "현미밥",
+        "pork belly": "삼겹살",
+        spinach: "시금치",
+        beef: "소고기",
+        musengchae: "무생채",
+        zucchini: "애호박",
+        gosari: "고사리",
+        kongnamul: "콩나물",
+        mushroom: "버섯",
+        carrots: "당근",
+        "fried egg": "달걀프라이",
+        galbi: "갈비",
+        gochujang: "고추장",
+        "sesame oil": "참기름",
+      };
+      let currentOrderIngredients = [];
+      let totalTips = 0;
+      let timeLeft = TOTAL_TIME;
+      let timerInterval = null;
+      let pendingCookResult = null;
+      let active = null;
+      let startPointer = { x: 0, y: 0 };
+      let startPos = { x: 0, y: 0 };
+      document.querySelectorAll("#cookScreen .draggable").forEach((el) => {
+        el.dataset.originalSrc = el.getAttribute("src");
+      });
+      const eggPanImg = new Image();
+      eggPanImg.src = "PR.pan.png";
+      let eggState = "idle"; // idle -> break -> cook -> result
+      let eggProgress = 0;
+      let eggTick = 0;
+      const eggPerfectStart = 0.62;
+      const eggPerfectEnd = 0.7;
+      const eggData = { x: 260, y: 98, rx: 25, ry: 35 };
+      const eggPanSlot = { x: 135, y: 175, w: 360, h: 170 };
+      const eggFry = { x: eggData.x, y: 258 };
+      let galbiState = "idle"; // idle -> place -> cook -> result
+      let galbiProgress = 0;
+      let galbiTick = 0;
+      const galbiPerfectStart = 0.62;
+      const galbiPerfectEnd = 0.7;
+      const rawGalbi = { x: 280, y: 108, w: 190, h: 118 };
+      const grillGalbi = { x: 280, y: 234, w: 235, h: 145 };
+      const COOK_DESIGN_WIDTH = 1904;
+      const COOK_DESIGN_HEIGHT = 906;
+      const CUSTOMER_DESIGN_WIDTH = 1904;
+      const CUSTOMER_DESIGN_HEIGHT = 906;
+      let currentCookScale = 1;
+      let currentCustomerScale = 1;
+
+      function calculateFitScale(designWidth, designHeight) {
+        const viewportWidth = Math.max(1, window.innerWidth || designWidth);
+        const viewportHeight = Math.max(1, window.innerHeight || designHeight);
+        return Math.min(viewportWidth / designWidth, viewportHeight / designHeight);
+      }
+
+      function updateResponsiveLayout() {
+        currentCookScale = calculateFitScale(COOK_DESIGN_WIDTH, COOK_DESIGN_HEIGHT);
+        currentCustomerScale = calculateFitScale(CUSTOMER_DESIGN_WIDTH, CUSTOMER_DESIGN_HEIGHT);
+        document.documentElement.style.setProperty("--cook-scale", String(currentCookScale));
+        document.documentElement.style.setProperty("--customer-scale", String(currentCustomerScale));
+      }
+
+      function getStageScale() {
+        const rect = stage.getBoundingClientRect();
+        if (stage.offsetWidth > 0 && rect.width > 0) {
+          return rect.width / stage.offsetWidth;
+        }
+        return currentCookScale || 1;
+      }
+
+      function getElementLocalScale(el) {
+        const scaleValue = parseFloat(getComputedStyle(el).getPropertyValue("--scale"));
+        return Number.isFinite(scaleValue) && scaleValue > 0 ? scaleValue : 1;
+      }
+
+      /* =========================
+3. 사운드
+========================= */
+
+/* =========================
+1. 메인화면 나옴
+========================= */
+
+function initializeGame() {
+  updateResponsiveLayout();
+  rememberOriginalIngredientImages();
+  updateTipDisplay();
+  updateTimerDisplay();
+  updateEggButtons();
+  updateGalbiButtons();
+  createFloatingBowls();
+  moveFloatingBowls();
+  eggLoop();
+  galbiLoop();
+  bindGameEvents();
+  showMainScreen();
+}
+
+function rememberOriginalIngredientImages() {
+  document.querySelectorAll("#cookScreen .draggable").forEach((el) => {
+    el.dataset.originalSrc = el.getAttribute("src");
+  });
+}
+
+function showTipsBox() {
+  tipsBox.style.display = "block";
+}
+
+function hideTipsBox() {
+  tipsBox.style.display = "none";
+}
+
+function playCookingSound() {
+  if (!cookingSound || !cookingSound.paused) return;
+  cookingSound.play().catch(() => {
+  });
+}
+
+function pauseCookingSound() {
+  if (!cookingSound) return;
+  cookingSound.pause();
+}
+
+function updateCookingSound() {
+  if (!cookingSound) return;
+  const eggIsCooking = eggState === "cook";
+  const galbiIsCooking = galbiState === "cook";
+  const cookingScreenVisible = eggScreen.style.display === "flex";
+  if (cookingScreenVisible && (eggIsCooking || galbiIsCooking)) {
+    playCookingSound();
+  } else {
+    pauseCookingSound();
+  }
+}
+
+function playButtonSound() {
+  if (!buttonSound) return;
+  buttonSound.currentTime = 0;
+  buttonSound.play().catch(() => {
+  });
+}
+
+function playMainBGM() {
+  if (!mainBgm) return;
+  mainBgm.play().catch(() => {
+  });
+}
+
+function pauseMainBGM() {
+  if (!mainBgm) return;
+  mainBgm.pause();
+}
+
+function tryStartMainBGMAfterInteraction() {
+  if (mainScreen.style.display !== "none") {
+    playMainBGM();
+  }
+}
+
+function showMainScreen() {
+  updateResponsiveLayout();
+  pauseCookingSound();
+  mainScreen.style.display = "flex";
+  customerScreen.style.display = "none";
+  cookScreen.style.display = "none";
+  eggScreen.style.display = "none";
+  pauseScreen.style.display = "none";
+  document.title = "main";
+  showTipsBox();
+  playMainBGM();
+}
+
+/* =========================
+2. 메인스크린속 요소들(날아다니는 비빔밥, 플레이버튼)
+========================= */
+
+function getMainBowlMaxX() {
+  return Math.max(0, window.innerWidth - mainBowlSize);
+}
+
+function getMainBowlMaxY() {
+  return Math.max(0, window.innerHeight - mainBowlSize);
+}
+
+function createFloatingBowls() {
+  bowlImages.forEach((imageName) => {
+    const bowlWrap = document.createElement("div");
+    bowlWrap.classList.add("floating-bowl-wrap");
+    const img = document.createElement("img");
+    img.src = imageName;
+    img.alt = "Bibimbap Bowl";
+    bowlWrap.appendChild(img);
+    mainScreen.appendChild(bowlWrap);
+    mainBowlData.push({
+      element: bowlWrap,
+      x: Math.random() * getMainBowlMaxX(),
+      y: Math.random() * getMainBowlMaxY(),
+      speedX:
+        (Math.random() * 1.5 + 0.8) * (Math.random() < 0.5 ? 1 : -1),
+      speedY:
+        (Math.random() * 1.5 + 0.8) * (Math.random() < 0.5 ? 1 : -1),
+      rotate: Math.random() * 30 - 15,
+      rotateSpeed: Math.random() * 0.5 - 0.25,
+      floatAngle: Math.random() * Math.PI * 2,
+      floatSpeed: Math.random() * 0.03 + 0.02,
+      floatPower: Math.random() * 10 + 8,
+    });
+  });
+}
+
+function moveFloatingBowls() {
+  mainBowlData.forEach((item) => {
+    item.x += item.speedX;
+    item.y += item.speedY;
+    item.rotate += item.rotateSpeed;
+    item.floatAngle += item.floatSpeed;
+    const maxX = getMainBowlMaxX();
+    const maxY = getMainBowlMaxY();
+    if (item.x <= 0) {
+      item.x = 0;
+      item.speedX *= -1;
+    }
+    if (item.x >= maxX) {
+      item.x = maxX;
+      item.speedX *= -1;
+    }
+    if (item.y <= 0) {
+      item.y = 0;
+      item.speedY *= -1;
+    }
+    if (item.y >= maxY) {
+      item.y = maxY;
+      item.speedY *= -1;
+    }
+    const floatingMotion = Math.sin(item.floatAngle) * item.floatPower;
+    item.element.style.left = item.x + "px";
+    item.element.style.top = item.y + "px";
+    item.element.style.transform =
+      "translateY(" +
+      floatingMotion +
+      "px) rotate(" +
+      item.rotate +
+      "deg)";
+  });
+  requestAnimationFrame(moveFloatingBowls);
+}
+
+function keepFloatingBowlsInsideWindow() {
+  const maxX = getMainBowlMaxX();
+  const maxY = getMainBowlMaxY();
+  mainBowlData.forEach((item) => {
+    if (item.x > maxX) item.x = maxX;
+    if (item.y > maxY) item.y = maxY;
+  });
+}
+
+function startGameFromMain() {
+  resetGameExceptTips();
+  renderCustomerImage();
+  renderOrder();
+  showCustomerScreen();
+}
+
+/* =========================
+3. 손님 랜덤으로 뽑고 주문 진행
+========================= */
+
+function showCustomerScreen() {
+  updateResponsiveLayout();
+  pauseCookingSound();
+  mainScreen.style.display = "none";
+  customerScreen.style.display = "flex";
+  cookScreen.style.display = "none";
+  eggScreen.style.display = "none";
+  pauseScreen.style.display = "none";
+  document.title = "customer";
+  pauseMainBGM();
+  showTipsBox();
+}
+
+function showNewCustomerOrder() {
+  resetGameExceptTips();
+  renderCustomerImage();
+  renderOrder();
+  showCustomerScreen();
+}
+
+function renderCustomerImage() {
+  let nextCustomerImageNumber;
+  do {
+    nextCustomerImageNumber =
+      Math.floor(Math.random() * customerImageCount) + 1;
+  } while (
+    customerImageCount > 1 &&
+    nextCustomerImageNumber === lastCustomerImageNumber
+  );
+  lastCustomerImageNumber = nextCustomerImageNumber;
+  currentCustomerImageNumber = nextCustomerImageNumber;
+  customerImage.src = "PR.customer" + nextCustomerImageNumber + ".png";
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function quantityLabel(count, name) {
+  if (count === 1) return name;
+  return `${name} x${count}`;
+}
+
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function generateOrderData() {
+  const rice = riceOptions[randomInt(0, 1)];
+  const sauceEntries = mandatorySauces.map((sauce) => ({
+    name: sauce,
+    count: randomInt(1, 2),
+  }));
+  const optionalEntries = [];
+  const targetTotal = randomInt(5, 9);
+  let remaining = targetTotal;
+  for (let i = 0; i < optionalIngredients.length; i++) {
+    const item = optionalIngredients[i];
+    const remainingItems = optionalIngredients.length - i - 1;
+    const maxPossibleLater = remainingItems * 2;
+    const minCount = Math.max(0, remaining - maxPossibleLater);
+    const maxCount = Math.min(2, remaining);
+    const count = randomInt(minCount, maxCount);
+    if (count > 0) {
+      optionalEntries.push({ name: item, count });
+    }
+    remaining -= count;
+  }
+  const shuffledOptionalEntries = shuffle(optionalEntries);
+  const eggEntries = [];
+  if (Math.random() < 0.8) {
+    eggEntries.push({
+      name: "fried egg",
+      count: 1,
+    });
+  }
+  const galbiEntries = [];
+  if (Math.random() < 0.8) {
+    galbiEntries.push({
+      name: "galbi",
+      count: 1,
+    });
+  }
+  const finalOptionalEntries = [
+    ...shuffledOptionalEntries,
+    ...eggEntries,
+    ...galbiEntries,
+  ];
+  const ingredientsArray = [
+    rice,
+    ...finalOptionalEntries.flatMap((item) =>
+      Array(item.count).fill(item.name),
+    ),
+    ...sauceEntries.flatMap((item) => Array(item.count).fill(item.name)),
+  ];
+  return {
+    rice,
+    optionalEntries: finalOptionalEntries,
+    sauceEntries,
+    ingredientsArray,
+  };
+}
+
+function buildEnglishOrder(order) {
+  const normalOptionalParts = order.optionalEntries
+    .filter((item) => item.name !== "galbi")
+    .map((item) => quantityLabel(item.count, item.name));
+  const sauceParts = order.sauceEntries.map((item) =>
+    quantityLabel(item.count, item.name),
+  );
+  const galbiParts = order.optionalEntries
+    .filter((item) => item.name === "galbi")
+    .map((item) => quantityLabel(item.count, item.name));
+  const parts = [
+    order.rice,
+    ...normalOptionalParts,
+    ...sauceParts,
+    ...galbiParts,
+  ];
+  if (parts.length === 1) {
+    return `Can I get bibimbap with ${parts[0]}, please?`;
+  }
+  if (parts.length === 2) {
+    return `Can I get bibimbap with ${parts[0]} and ${parts[1]}, please?`;
+  }
+  const last = parts[parts.length - 1];
+  const rest = parts.slice(0, -1);
+  return `Can I get bibimbap with ${rest.join(", ")}, and ${last}, please?`;
+}
+
+function koreanQuantityLabel(count, name) {
+  const koreanName = koreanIngredientNames[name] || name;
+  if (count === 1) return koreanName;
+  return koreanName + " x" + count;
+}
+
+function buildKoreanOrder(order) {
+  const normalOptionalParts = order.optionalEntries
+    .filter((item) => item.name !== "galbi")
+    .map((item) => koreanQuantityLabel(item.count, item.name));
+  const sauceParts = order.sauceEntries.map((item) =>
+    koreanQuantityLabel(item.count, item.name),
+  );
+  const galbiParts = order.optionalEntries
+    .filter((item) => item.name === "galbi")
+    .map((item) => koreanQuantityLabel(item.count, item.name));
+  const parts = [
+    koreanIngredientNames[order.rice] || order.rice,
+    ...normalOptionalParts,
+    ...sauceParts,
+    ...galbiParts,
+  ];
+  return "비빔밥에 " + parts.join(", ") + " 넣어주세요.";
+}
+
+function renderOrder() {
+  const order = generateOrderData();
+  currentOrderIngredients = [...order.ingredientsArray];
+  let orderMessage;
+  if (currentCustomerImageNumber === 7) {
+    orderMessage = buildKoreanOrder(order);
+  } else {
+    orderMessage = buildEnglishOrder(order);
+    if (currentCustomerImageNumber === 6) {
+      orderMessage += "\nAre you with me?";
+    }
+  }
+  typeCustomerText(orderMessage);
+  console.log("Current customer image:", "PR.customer" + currentCustomerImageNumber + ".png");
+  console.log("Current order:", currentOrderIngredients);
+}
+
+function stopCustomerTyping() {
+  clearInterval(customerTypingTimer);
+  customerTypingTimer = null;
+}
+
+function setCustomerTextInstant(text) {
+  stopCustomerTyping();
+  orderText.textContent = text;
+}
+
+function typeCustomerText(text, speed = 35) {
+  stopCustomerTyping();
+  const message = String(text);
+  orderText.textContent = "";
+  if (!message.length) return;
+  let index = 0;
+  customerTypingTimer = setInterval(() => {
+    index++;
+    orderText.textContent = message.slice(0, index);
+    if (index >= message.length) {
+      stopCustomerTyping();
+    }
+  }, speed);
+}
+
+/* =========================
+4. cook버튼, cook화면등장, 타이머시작, 주문 생성
+========================= */
+
+function startCookFromCustomer() {
+  renderCookOrderText(currentOrderIngredients);
+  showCookScreen();
+  startTimer();
+}
+
+function showCookScreen() {
+  updateResponsiveLayout();
+  pauseCookingSound();
+  mainScreen.style.display = "none";
+  customerScreen.style.display = "none";
+  cookScreen.style.display = "block";
+  eggScreen.style.display = "none";
+  pauseScreen.style.display = "none";
+  document.title = "Drag Image";
+  pauseMainBGM();
+  hideTipsBox();
+}
+
+function renderCookOrderText(orderArray) {
+  const source = Array.isArray(orderArray) ? orderArray : [];
+  const counts = new Map();
+  const orderedNames = [];
+  source.forEach((item) => {
+    if (!counts.has(item)) {
+      counts.set(item, 1);
+      orderedNames.push(item);
+    } else {
+      counts.set(item, counts.get(item) + 1);
+    }
+  });
+  const displayNames = orderedNames.filter((item) => item !== "galbi");
+  if (counts.has("galbi")) {
+    displayNames.push("galbi");
+  }
+  const lines = displayNames.map((item) => {
+    const count = counts.get(item);
+    return count > 1 ? `${item} x ${count}` : item;
+  });
+  cookOrderText.textContent = lines.join("\n");
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return minutes + ":" + String(secs).padStart(2, "0");
+}
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  timerText.textContent =
+    minutes + ":" + String(seconds).padStart(2, "0");
+}
+
+function tickTimer() {
+  timeLeft--;
+  if (timeLeft <= 0) {
+    timeLeft = 0;
+    updateTimerDisplay();
+    handleTimeOut();
+    return;
+  }
+  updateTimerDisplay();
+}
+
+function startTimer() {
+  stopTimer();
+  timeLeft = TOTAL_TIME;
+  updateTimerDisplay();
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
+function pauseTimer() {
+  stopTimer();
+}
+
+function resumeTimer() {
+  if (timeLeft <= 0) return;
+  stopTimer();
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function handleTimeOut() {
+  stopTimer();
+  active = null;
+  document.body.classList.remove("hide-cursor");
+  stage
+    .querySelectorAll('.draggable[data-source="false"]')
+    .forEach((el) => {
+      el.remove();
+    });
+  showCustomerScreenFromCook();
+  showTimeFailMessage();
+  showResultScreen();
+}
+
+/* =========================
+5. cook screen 재료 볼속에 드래그
+========================= */
+
+function startIngredientDrag(e) {
+  const target = e.target.closest(".draggable");
+  if (!target) return;
+  if (target.dataset.locked === "true") return;
+  if (shouldBlockBeforeRice(target)) return;
+  startPointer = { x: e.clientX, y: e.clientY };
+  if (target.dataset.source === "true") {
+    if (isRiceSource(target) && hasRiceBeenChosen()) return;
+    if (isEggSource(target) && !isEggReadyToUse(target)) return;
+    const pos = getPos(target);
+    active = makeClone(target, pos.x, pos.y);
+    startPos = getPos(active);
+    if (isEggSource(target)) disableEggSource();
+  } else {
+    active = target;
+    startPos = getPos(active);
+  }
+  startSpecialDragMode(active);
+  active.setPointerCapture(e.pointerId);
+  e.preventDefault();
+}
+
+function moveIngredientDrag(e) {
+  if (!active) return;
+  const stageScale = getStageScale();
+  const dx = (e.clientX - startPointer.x) / stageScale;
+  const dy = (e.clientY - startPointer.y) / stageScale;
+  let nextX = startPos.x + dx;
+  let nextY = startPos.y + dy;
+  ({ x: nextX, y: nextY } = clampToStage(active, nextX, nextY));
+  active.style.setProperty("--x", `${nextX}px`);
+  active.style.setProperty("--y", `${nextY}px`);
+}
+
+function finishCurrentDrag(e) {
+  if (!active) return;
+
+  if (
+    e.pointerId !== undefined &&
+    active.hasPointerCapture(e.pointerId)
+  ) {
+    active.releasePointerCapture(e.pointerId);
+  }
+
+  const droppedInBowl = isInsideBowl(active);
+  const shouldSnapToCenter = isCenterStageDraggable(active);
+  const draggedEgg = isEggIngredient(active);
+
+  endSpecialDragMode(active, droppedInBowl);
+
+  if (shouldSnapToCenter && droppedInBowl) {
+    disableRiceSources();
+    snapToStageCenter(active);
+    lockRiceClone(active);
+  } else if (!droppedInBowl) {
+    if (draggedEgg) {
+      restoreEggSourceAfterFailedDrag();
+    }
+    active.remove();
+  }
+
+  active = null;
+}
+function getPos(el) {
+  const style = getComputedStyle(el);
+  const x = parseFloat(style.getPropertyValue("--x")) || 0;
+  const y = parseFloat(style.getPropertyValue("--y")) || 0;
+  return { x, y };
+}
+
+function isInsideBowl(el) {
+  const bowlRect = bowl.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+  const cx = elRect.left + elRect.width / 2;
+  const cy = elRect.top + elRect.height / 2;
+  return (
+    cx >= bowlRect.left &&
+    cx <= bowlRect.right &&
+    cy >= bowlRect.top &&
+    cy <= bowlRect.bottom
+  );
+}
+
+function clampToStage(el, x, y) {
+  const localScale = getElementLocalScale(el);
+  const maxX = stage.clientWidth - el.offsetWidth * localScale;
+  const maxY = stage.clientHeight - el.offsetHeight * localScale;
+  return {
+    x: Math.min(Math.max(0, x), Math.max(0, maxX)),
+    y: Math.min(Math.max(0, y), Math.max(0, maxY)),
+  };
+}
+
+function makeClone(source, x, y) {
+  const clone = source.cloneNode(true);
+  clone.dataset.source = "false";
+  clone.dataset.originalSrc = source.dataset.originalSrc;
+  clone.style.opacity = "1";
+  clone.style.setProperty("--x", `${x}px`);
+  clone.style.setProperty("--y", `${y}px`);
+  clone.style.setProperty("--scale", "1");
+  stage.appendChild(clone);
+  return clone;
+}
+
+function getDragSwapTarget(el) {
+  const original = el.dataset.originalSrc;
+  const swapMap = {
+    "PR.gj.png": {
+      dragSrc: "PR.spoon.png",
+      finalSrc: "PR.gj.png",
+    },
+    "PR.sesameoil.png": {
+      dragSrc: "PR.sesameOilSpoon.png",
+      finalSrc: "PR.sesameoil.png",
+    },
+  };
+  return swapMap[original] || null;
+}
+
+function startSpecialDragMode(el) {
+  const target = getDragSwapTarget(el);
+  if (!target) return;
+  document.body.classList.add("hide-cursor");
+  el.setAttribute("src", target.dragSrc);
+}
+
+function endSpecialDragMode(el, droppedInBowl) {
+  const target = getDragSwapTarget(el);
+  if (!target) return;
+  document.body.classList.remove("hide-cursor");
+  if (droppedInBowl) {
+    el.setAttribute("src", target.finalSrc);
+  }
+}
+
+function isRiceSource(el) {
+  const original = el.dataset.originalSrc;
+  return (
+    original === "PR.whiterice.png" || original === "PR.brownrice.png"
+  );
+}
+
+function hasRiceBeenChosen() {
+  return stage.dataset.riceChosen === "true";
+}
+
+function disableRiceSources() {
+  stage.dataset.riceChosen = "true";
+  stage
+    .querySelectorAll('.draggable[data-source="true"]')
+    .forEach((el) => {
+      if (isRiceSource(el)) {
+        el.dataset.used = "true";
+        el.style.pointerEvents = "none";
+        el.style.display = "none";
+      }
+    });
+}
+
+function shouldBlockBeforeRice(el) {
+  return (
+    el.dataset.source === "true" &&
+    !isRiceSource(el) &&
+    !hasRiceBeenChosen()
+  );
+}
+
+function isEggSource(el) {
+  return el.id === "eggSource";
+}
+
+function isEggReadyToUse(el) {
+  return (
+    isEggSource(el) &&
+    el.dataset.cooked === "true" &&
+    el.dataset.used !== "true"
+  );
+}
+
+function disableEggSource() {
+  eggSource.dataset.used = "true";
+  eggSource.style.pointerEvents = "none";
+  eggSource.style.display = "none";
+}
+
+function restoreEggSourceAfterFailedDrag() {
+  eggSource.style.opacity = "1";
+  eggSource.style.display = "";
+  eggSource.style.pointerEvents = "";
+  eggSource.dataset.cooked = "true";
+  eggSource.dataset.used = "false";
+}
+
+function isEggIngredient(el) {
+  return el && el.dataset.originalSrc === "PR.egg.png";
+}
+
+function lockRiceClone(el) {
+  el.dataset.locked = "true";
+  el.style.pointerEvents = "none";
+  el.style.cursor = "default";
+}
+
+function isCenterStageDraggable(el) {
+  const original = el.dataset.originalSrc;
+  return (
+    original === "PR.whiterice.png" || original === "PR.brownrice.png"
+  );
+}
+
+function snapToStageCenter(el) {
+  const centerX = 555;
+  const centerY = 300;
+  const finalScale = 1.8;
+  el.style.setProperty("--x", `${centerX}px`);
+  el.style.setProperty("--y", `${centerY}px`);
+  el.style.setProperty("--scale", `${finalScale}`);
+  el.animate(
+    [
+      { transform: `translate(${centerX}px, ${centerY}px) scale(1)` },
+      { transform: `translate(${centerX}px, ${centerY}px) scale(2.1)` },
+      {
+        transform: `translate(${centerX}px, ${centerY}px) scale(${finalScale})`,
+      },
+    ],
+    {
+      duration: 100,
+      easing: "ease-out",
+      fill: "forwards",
+    },
+  );
+}
+
+function srcToIngredientName(src) {
+  const ingredientMap = {
+    "PR.whiterice.png": "white rice",
+    "PR.brownrice.png": "brown rice",
+    "PR.gj.png": "gochujang",
+    "PR.sesameoil.png": "sesame oil",
+    "PR.porkbelly.png": "pork belly",
+    "PR.spinach.png": "spinach",
+    "PR.beef.png": "beef",
+    "PR.musengchae.png": "musengchae",
+    "PR.zucchini.png": "zucchini",
+    "PR.gosari.png": "gosari",
+    "PR.kongnamul.png": "kongnamul",
+    "PR.mushroom.png": "mushroom",
+    "PR.carrots.png": "carrots",
+    "PR.egg.png": "fried egg",
+    "PR.undercooked.png": "fried egg",
+    "PR.perfect.png": "fried egg",
+    "PR.overcooked.png": "fried egg",
+    "PR.burnt.png": "fried egg",
+    "PR.galbi.png": "galbi",
+  };
+  return ingredientMap[src] || src;
+}
+
+/* =========================
+6. 갈비랑 계란 요리화면
+========================= */
+
+function showEggScreen() {
+  mainScreen.style.display = "none";
+  customerScreen.style.display = "none";
+  cookScreen.style.display = "none";
+  pauseScreen.style.display = "none";
+  eggScreen.style.display = "flex";
+  document.title = "Egg Cooking Gauge";
+  pauseMainBGM();
+  hideTipsBox();
+  active = null;
+  document.body.classList.remove("hide-cursor");
+  updateCookingSound();
+}
+
+function getCookEggImage(cookingState) {
+  const eggImageMap = {
+    undercooked: "PR.undercooked.png",
+    perfect: "PR.perfect.png",
+    overcooked: "PR.overcooked.png",
+    burnt: "PR.burnt.png",
+  };
+  return eggImageMap[cookingState] || "PR.egg.png";
+}
+
+function updateCookEggSource(servedEggData) {
+  const cookedEggSrc = getCookEggImage(servedEggData.cookingState);
+  eggSource.setAttribute("src", cookedEggSrc);
+  eggSource.style.opacity = "1";
+  eggSource.style.display = "";
+  eggSource.style.pointerEvents = "";
+  eggSource.dataset.cooked = "true";
+  eggSource.dataset.used = "false";
+  eggSource.dataset.cookingState = servedEggData.cookingState;
+}
+
+function resetCookEggSource() {
+  eggSource.setAttribute("src", "PR.egg.png");
+  eggSource.style.opacity = "0";
+  eggSource.style.display = "none";
+  eggSource.style.pointerEvents = "none";
+  eggSource.dataset.cooked = "false";
+  eggSource.dataset.used = "false";
+  eggSource.dataset.cookingState = "";
+}
+
+function handleEggCanvasClick(e) {
+  const rect = eggCanvas.getBoundingClientRect();
+  const mx = ((e.clientX - rect.left) * eggCanvas.width) / rect.width;
+  const my = ((e.clientY - rect.top) * eggCanvas.height) / rect.height;
+  if (eggState === "idle" && isEggClicked(mx, my)) {
+    eggState = "break";
+    eggProgress = 0;
+  }
+}
+
+function handleGalbiCanvasClick(e) {
+  const rect = galbiCanvas.getBoundingClientRect();
+  const mx = ((e.clientX - rect.left) * galbiCanvas.width) / rect.width;
+  const my = ((e.clientY - rect.top) * galbiCanvas.height) / rect.height;
+  if (galbiState === "idle" && isGalbiClicked(mx, my)) {
+    galbiState = "place";
+    galbiProgress = 0;
+  }
+}
+
+/* =========================
+7. 계란 굽기 (세부)
+========================= */
+
+function eggClamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
+function eggSmoothstep(t) {
+  t = eggClamp(t, 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+function eggLerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function isEggClicked(mx, my) {
+  const dx = mx - eggData.x;
+  const dy = my - eggData.y;
+  return (
+    (dx * dx) / (eggData.rx * eggData.rx) +
+      (dy * dy) / (eggData.ry * eggData.ry) <=
+    1
+  );
+}
+
+function resetEggGame() {
+  eggState = "idle";
+  eggProgress = 0;
+  updateEggButtons();
+  updateCookingSound();
+}
+
+function remakeEgg() {
+  eggState = "idle";
+  eggProgress = 0;
+  updateEggButtons();
+  updateCookingSound();
+}
+
+function serveEgg() {
+  if (eggState !== "result") return;
+  const servedProgress = eggProgress;
+  const cookPercent = Math.round(servedProgress * 100);
+  let cookState = "undercooked";
+  if (
+    servedProgress >= eggPerfectStart &&
+    servedProgress <= eggPerfectEnd
+  ) {
+    cookState = "perfect";
+  } else if (servedProgress > eggPerfectEnd && servedProgress <= 0.9) {
+    cookState = "overcooked";
+  } else if (servedProgress > 0.9) {
+    cookState = "burnt";
+  }
+  const servedEggData = {
+    cookingProgress: Number(servedProgress.toFixed(3)),
+    cookingPercent: cookPercent + "%",
+    cookingState: cookState,
+  };
+  localStorage.setItem("servedEgg", JSON.stringify(servedEggData));
+  console.log("Last served egg:", servedEggData);
+  updateCookEggSource(servedEggData);
+  eggState = "idle";
+  eggProgress = 0;
+  updateEggButtons();
+  updateCookingSound();
+}
+
+function completeEgg() {
+  if (eggState !== "cook") return;
+  eggState = "result";
+  updateEggButtons();
+  updateCookingSound();
+}
+
+function updateEggButtons() {
+  eggRemakeBtn.disabled = !(eggState === "cook" || eggState === "result");
+  eggServeBtn.disabled = !(eggState === "result");
+  eggCompleteBtn.disabled = !(eggState === "cook");
+}
+
+function eggShapePath(x, y, scale = 1) {
+  eggCtx.beginPath();
+  eggCtx.moveTo(x, y - 36 * scale);
+  eggCtx.bezierCurveTo(
+    x - 19 * scale,
+    y - 33 * scale,
+    x - 30 * scale,
+    y - 8 * scale,
+    x - 26 * scale,
+    y + 14 * scale,
+  );
+  eggCtx.bezierCurveTo(
+    x - 22 * scale,
+    y + 42 * scale,
+    x + 22 * scale,
+    y + 42 * scale,
+    x + 26 * scale,
+    y + 14 * scale,
+  );
+  eggCtx.bezierCurveTo(
+    x + 30 * scale,
+    y - 8 * scale,
+    x + 19 * scale,
+    y - 33 * scale,
+    x,
+    y - 36 * scale,
+  );
+  eggCtx.closePath();
+}
+
+function drawEggBackground() {
+  eggCtx.fillStyle = "#e8e2d6";
+  eggCtx.fillRect(0, 0, eggCanvas.width, eggCanvas.height);
+  eggCtx.fillStyle = "#cfc7bb";
+  eggCtx.fillRect(0, 285, eggCanvas.width, 135);
+}
+
+function drawEggPan() {
+  if (eggPanImg.complete && eggPanImg.naturalWidth > 0) {
+    eggCtx.drawImage(
+      eggPanImg,
+      eggPanSlot.x,
+      eggPanSlot.y,
+      eggPanSlot.w,
+      eggPanSlot.h,
+    );
+  }
+}
+
+function drawEggFire() {
+  if (eggState !== "cook" && eggState !== "result") return;
+  const baseY = 350;
+  const xs = [185, 215, 245, 275, 305, 335];
+  for (let i = 0; i < xs.length; i++) {
+    const px = xs[i];
+    const h = 40 + Math.sin(eggTick * 0.2 + i) * 10;
+    const innerH = 26 + Math.cos(eggTick * 0.25 + i) * 6;
+    eggCtx.beginPath();
+    eggCtx.moveTo(px - 11, baseY);
+    eggCtx.quadraticCurveTo(px, baseY - h, px + 11, baseY);
+    eggCtx.closePath();
+    eggCtx.fillStyle = "orange";
+    eggCtx.fill();
+    eggCtx.beginPath();
+    eggCtx.moveTo(px - 5, baseY);
+    eggCtx.quadraticCurveTo(px, baseY - innerH, px + 5, baseY);
+    eggCtx.closePath();
+    eggCtx.fillStyle = "yellow";
+    eggCtx.fill();
+  }
+}
+
+function drawWholeEgg(jitter = 0) {
+  eggCtx.save();
+  eggCtx.translate(eggData.x, eggData.y);
+  eggCtx.rotate(jitter);
+  eggCtx.translate(-eggData.x, -eggData.y);
+  eggCtx.shadowColor = "rgba(0,0,0,0.15)";
+  eggCtx.shadowBlur = 7;
+  eggCtx.shadowOffsetY = 3;
+  eggShapePath(eggData.x, eggData.y, 1);
+  eggCtx.fillStyle = "#fffaf0";
+  eggCtx.fill();
+  eggCtx.lineWidth = 2;
+  eggCtx.strokeStyle = "#b8aa87";
+  eggCtx.stroke();
+  eggCtx.beginPath();
+  eggCtx.ellipse(
+    eggData.x - 8,
+    eggData.y - 12,
+    5,
+    11,
+    -0.4,
+    0,
+    Math.PI * 2,
+  );
+  eggCtx.fillStyle = "rgba(255,255,255,0.4)";
+  eggCtx.fill();
+  eggCtx.restore();
+}
+
+function drawEggCrackLines(x, y, amount) {
+  eggCtx.save();
+  eggCtx.lineWidth = 2;
+  eggCtx.lineCap = "round";
+  eggCtx.lineJoin = "round";
+  eggCtx.strokeStyle = `rgba(85, 65, 45, ${0.25 + amount * 0.75})`;
+  const s = 0.4 + amount * 0.85;
+  eggCtx.beginPath();
+  eggCtx.moveTo(x, y - 27 * s);
+  eggCtx.lineTo(x - 5 * s, y - 17 * s);
+  eggCtx.lineTo(x + 4 * s, y - 8 * s);
+  eggCtx.lineTo(x - 4 * s, y + 2 * s);
+  eggCtx.lineTo(x + 5 * s, y + 13 * s);
+  eggCtx.lineTo(x, y + 27 * s);
+  eggCtx.stroke();
+  eggCtx.beginPath();
+  eggCtx.moveTo(x + 4 * s, y - 8 * s);
+  eggCtx.lineTo(x + 14 * s, y - 13 * s);
+  eggCtx.moveTo(x - 4 * s, y + 2 * s);
+  eggCtx.lineTo(x - 14 * s, y - 2 * s);
+  eggCtx.moveTo(x + 5 * s, y + 13 * s);
+  eggCtx.lineTo(x + 14 * s, y + 18 * s);
+  eggCtx.stroke();
+  eggCtx.restore();
+}
+
+function drawEggShellHalf(side, x, y, rotation) {
+  eggCtx.save();
+  eggCtx.translate(x, y);
+  eggCtx.rotate(rotation);
+  eggCtx.scale(side, 1);
+  eggCtx.beginPath();
+  eggCtx.moveTo(0, -31);
+  eggCtx.bezierCurveTo(-22, -28, -31, -4, -27, 15);
+  eggCtx.bezierCurveTo(-23, 39, -2, 38, 0, 29);
+  eggCtx.lineTo(-6, 19);
+  eggCtx.lineTo(3, 10);
+  eggCtx.lineTo(-5, 2);
+  eggCtx.lineTo(4, -8);
+  eggCtx.lineTo(-4, -18);
+  eggCtx.lineTo(0, -31);
+  eggCtx.closePath();
+  eggCtx.fillStyle = "#fffaf0";
+  eggCtx.fill();
+  eggCtx.lineWidth = 2;
+  eggCtx.strokeStyle = "#b8aa87";
+  eggCtx.stroke();
+  eggCtx.beginPath();
+  eggCtx.moveTo(-3, -24);
+  eggCtx.lineTo(-8, -12);
+  eggCtx.lineTo(-2, -3);
+  eggCtx.lineTo(-9, 7);
+  eggCtx.lineTo(-3, 18);
+  eggCtx.strokeStyle = "rgba(150,120,80,0.25)";
+  eggCtx.lineWidth = 1.5;
+  eggCtx.stroke();
+  eggCtx.restore();
+}
+
+function drawEggWhiteStream(pourAmount) {
+  const dropX = eggData.x;
+  const topY = eggData.y + 60;
+  const bottomY = eggLerp(eggData.y + 70, eggFry.y, pourAmount);
+  const wiggle = Math.sin(eggTick * 0.18) * 1.2;
+  eggCtx.save();
+  eggCtx.beginPath();
+  eggCtx.moveTo(dropX - 10, topY);
+  eggCtx.bezierCurveTo(
+    dropX - 8 + wiggle,
+    175,
+    dropX - 8,
+    220,
+    dropX - 8,
+    bottomY,
+  );
+  eggCtx.lineTo(dropX + 8, bottomY);
+  eggCtx.bezierCurveTo(
+    dropX + 8,
+    220,
+    dropX + 8 - wiggle,
+    175,
+    dropX + 10,
+    topY,
+  );
+  eggCtx.closePath();
+  eggCtx.fillStyle = "rgba(255,255,245,0.96)";
+  eggCtx.fill();
+  eggCtx.restore();
+}
+
+function drawEggFallingYolk(yolkAmount) {
+  const x = eggData.x;
+  const y = eggLerp(eggData.y + 65, eggFry.y, yolkAmount);
+  const r = eggLerp(10, 13, yolkAmount);
+  eggCtx.beginPath();
+  eggCtx.arc(x, y, r, 0, Math.PI * 2);
+  eggCtx.fillStyle = "#f4a000";
+  eggCtx.fill();
+  eggCtx.beginPath();
+  eggCtx.arc(x - 5, y - 5, r * 0.28, 0, Math.PI * 2);
+  eggCtx.fillStyle = "rgba(255,255,255,0.35)";
+  eggCtx.fill();
+}
+
+function drawFriedEgg(p) {
+  const cx = eggFry.x;
+  const cy = eggFry.y;
+  const whiteRx = 46;
+  const whiteRy = 29;
+  const yolkR = 16;
+  let whiteColor = "#fffefb";
+  let edgeColor = "#eee7dc";
+  let yolkColor = "#ffd36a";
+  if (p >= eggPerfectStart) {
+    whiteColor = "#fff8e5";
+    edgeColor = "#d6b56d";
+    yolkColor = "#f4a000";
+  }
+  if (p > 0.75) {
+    whiteColor = "#f4d18a";
+    edgeColor = "#b77b2a";
+    yolkColor = "#d98a00";
+  }
+  if (p > 0.9) {
+    whiteColor = "#7a4b24";
+    edgeColor = "#3a2414";
+    yolkColor = "#6b3b16";
+  }
+  eggCtx.beginPath();
+  eggCtx.moveTo(cx, cy - whiteRy);
+  eggCtx.bezierCurveTo(
+    cx - whiteRx * 0.45,
+    cy - whiteRy * 1.03,
+    cx - whiteRx * 1.0,
+    cy - whiteRy * 0.45,
+    cx - whiteRx,
+    cy,
+  );
+  eggCtx.bezierCurveTo(
+    cx - whiteRx * 1.0,
+    cy + whiteRy * 0.45,
+    cx - whiteRx * 0.45,
+    cy + whiteRy * 0.95,
+    cx,
+    cy + whiteRy,
+  );
+  eggCtx.bezierCurveTo(
+    cx + whiteRx * 0.45,
+    cy + whiteRy * 0.95,
+    cx + whiteRx * 1.0,
+    cy + whiteRy * 0.45,
+    cx + whiteRx,
+    cy,
+  );
+  eggCtx.bezierCurveTo(
+    cx + whiteRx * 1.0,
+    cy - whiteRy * 0.45,
+    cx + whiteRx * 0.45,
+    cy - whiteRy * 1.03,
+    cx,
+    cy - whiteRy,
+  );
+  eggCtx.closePath();
+  eggCtx.fillStyle = whiteColor;
+  eggCtx.fill();
+  eggCtx.lineWidth = 1.5;
+  eggCtx.strokeStyle = edgeColor;
+  eggCtx.stroke();
+  eggCtx.beginPath();
+  eggCtx.arc(cx, cy, yolkR, 0, Math.PI * 2);
+  eggCtx.fillStyle = yolkColor;
+  eggCtx.fill();
+  eggCtx.beginPath();
+  eggCtx.arc(cx - 4, cy - 4, yolkR * 0.28, 0, Math.PI * 2);
+  eggCtx.fillStyle = "rgba(255,255,255,0.35)";
+  eggCtx.fill();
+  if (p > 0.82) {
+    eggCtx.fillStyle = "rgba(60,30,10,0.45)";
+    for (let i = 0; i < 5; i++) {
+      const bx = cx - 30 + i * 14 + Math.sin(eggTick * 0.05 + i) * 2;
+      const by = cy - 7 + Math.cos(i) * 16;
+      eggCtx.beginPath();
+      eggCtx.ellipse(bx, by, 4, 2.5, i, 0, Math.PI * 2);
+      eggCtx.fill();
+    }
+  }
+}
+
+function drawNaturalBreakingEgg(p) {
+  const crackAmount = eggSmoothstep(p / 0.25);
+  const openAmount = eggSmoothstep((p - 0.18) / 0.35);
+  const pourAmount = eggSmoothstep((p - 0.35) / 0.45);
+  const yolkAmount = eggSmoothstep((p - 0.52) / 0.38);
+  const panEggAmount = eggSmoothstep((p - 0.88) / 0.1);
+  if (panEggAmount > 0) {
+    drawFriedEgg(panEggAmount * 0.9);
+  }
+  if (openAmount < 0.08) {
+    const shake = Math.sin(eggTick * 0.7) * 0.035 * crackAmount;
+    drawWholeEgg(shake);
+    eggCtx.save();
+    eggShapePath(eggData.x, eggData.y, 1);
+    eggCtx.clip();
+    drawEggCrackLines(eggData.x, eggData.y, crackAmount);
+    eggCtx.restore();
+    return;
+  }
+  if (pourAmount > 0.02 && pourAmount < 0.98) {
+    drawEggWhiteStream(pourAmount);
+  }
+  if (yolkAmount > 0.02 && yolkAmount < 0.96) {
+    drawEggFallingYolk(yolkAmount);
+  }
+  const shellGap = 8 + openAmount * 38;
+  const shellLift = openAmount * 7;
+  const wobble = Math.sin(eggTick * 0.25) * 0.04;
+  drawEggShellHalf(
+    -1,
+    eggData.x - shellGap,
+    eggData.y + 4 - shellLift,
+    -0.45 - openAmount * 0.75 + wobble,
+  );
+  drawEggShellHalf(
+    1,
+    eggData.x + shellGap,
+    eggData.y + 4 - shellLift,
+    0.45 + openAmount * 0.75 - wobble,
+  );
+  if (openAmount > 0.45) {
+    eggCtx.fillStyle = "#fffaf0";
+    eggCtx.beginPath();
+    eggCtx.arc(eggData.x - 25, eggData.y + 55, 3, 0, Math.PI * 2);
+    eggCtx.fill();
+    eggCtx.beginPath();
+    eggCtx.arc(eggData.x + 28, eggData.y + 52, 2.5, 0, Math.PI * 2);
+    eggCtx.fill();
+  }
+}
+
+function drawEggStartText() {
+  if (eggState !== "idle") return;
+  eggCtx.save();
+  eggCtx.fillStyle = "rgba(0,0,0,0.65)";
+  eggCtx.font = "16px Arial";
+  eggCtx.restore();
+}
+
+function drawEggCookUI() {
+  if (eggState !== "cook" && eggState !== "result") return;
+  const barX = 100;
+  const barY = 365;
+  const barW = 320;
+  const barH = 16;
+  eggCtx.save();
+  eggCtx.fillStyle = "rgba(255,255,255,0.8)";
+  eggCtx.fillRect(barX - 15, barY - 18, barW + 30, 48);
+  eggCtx.strokeStyle = "rgba(0,0,0,0.45)";
+  eggCtx.lineWidth = 2;
+  eggCtx.strokeRect(barX, barY, barW, barH);
+  eggCtx.fillStyle = "rgba(90,180,90,0.45)";
+  eggCtx.fillRect(
+    barX + barW * eggPerfectStart,
+    barY,
+    barW * (eggPerfectEnd - eggPerfectStart),
+    barH,
+  );
+  let fillColor = "#f4a000";
+  if (eggProgress > 0.75) {
+    fillColor = "#c77720";
+  }
+  if (eggProgress > 0.9) {
+    fillColor = "#4d2b16";
+  }
+  eggCtx.fillStyle = fillColor;
+  eggCtx.fillRect(barX, barY, barW * eggProgress, barH);
+  eggCtx.restore();
+}
+
+function updateEggGame() {
+  eggTick++;
+  if (eggState === "break") {
+    eggProgress += 0.018;
+    if (eggProgress >= 1) {
+      eggProgress = 0;
+      eggState = "cook";
+      updateCookingSound();
+    }
+  } else if (eggState === "cook") {
+    eggProgress += 0.0065;
+    if (eggProgress >= 1) {
+      eggProgress = 1;
+    }
+  }
+  updateEggButtons();
+}
+
+function drawEggGame() {
+  drawEggBackground();
+  drawEggFire();
+  drawEggPan();
+  if (eggState === "idle") {
+    drawWholeEgg();
+    drawEggStartText();
+  }
+  if (eggState === "break") {
+    drawNaturalBreakingEgg(eggProgress);
+  }
+  if (eggState === "cook" || eggState === "result") {
+    drawFriedEgg(eggProgress);
+  }
+  drawEggCookUI();
+}
+
+function eggLoop() {
+  updateEggGame();
+  drawEggGame();
+  requestAnimationFrame(eggLoop);
+}
+
+/* =========================
+8. 갈비 만들기 (세부)
+========================= */
+
+function galbiClamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
+function galbiSmoothstep(t) {
+  t = galbiClamp(t, 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+function galbiLerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function isGalbiClicked(mx, my) {
+  const left = rawGalbi.x - rawGalbi.w / 2;
+  const top = rawGalbi.y - rawGalbi.h / 2;
+  return (
+    mx >= left &&
+    mx <= left + rawGalbi.w &&
+    my >= top &&
+    my <= top + rawGalbi.h
+  );
+}
+
+function resetGalbiGame() {
+  galbiState = "idle";
+  galbiProgress = 0;
+  updateGalbiButtons();
+  updateCookingSound();
+}
+
+function remakeGalbi() {
+  galbiState = "idle";
+  galbiProgress = 0;
+  updateGalbiButtons();
+  updateCookingSound();
+}
+
+function completeGalbi() {
+  if (galbiState !== "cook") return;
+  galbiState = "result";
+  updateGalbiButtons();
+  updateCookingSound();
+}
+
+function serveGalbi() {
+  if (galbiState !== "result") return;
+  const servedProgress = galbiProgress;
+  const cookPercent = Math.round(servedProgress * 100);
+  let cookState = "undercooked";
+  if (
+    servedProgress >= galbiPerfectStart &&
+    servedProgress <= galbiPerfectEnd
+  ) {
+    cookState = "perfect";
+  } else if (servedProgress > galbiPerfectEnd && servedProgress <= 0.9) {
+    cookState = "overcooked";
+  } else if (servedProgress > 0.9) {
+    cookState = "burnt";
+  }
+  const servedGalbiData = {
+    cookingProgress: Number(servedProgress.toFixed(3)),
+    cookingPercent: cookPercent + "%",
+    cookingState: cookState,
+  };
+  localStorage.setItem("servedGalbi", JSON.stringify(servedGalbiData));
+  console.log("Last served galbi:", servedGalbiData);
+  galbiState = "idle";
+  galbiProgress = 0;
+  updateGalbiButtons();
+  updateCookingSound();
+}
+
+function updateGalbiButtons() {
+  galbiRemakeBtn.disabled = !(
+    galbiState === "cook" || galbiState === "result"
+  );
+  galbiServeBtn.disabled = !(galbiState === "result");
+  galbiCompleteBtn.disabled = !(galbiState === "cook");
+}
+
+function drawGalbiBackground() {
+  galbiCtx.fillStyle = "#e8e2d6";
+  galbiCtx.fillRect(0, 0, galbiCanvas.width, galbiCanvas.height);
+}
+
+function drawGalbiPlate() {
+  if (galbiState !== "idle") return;
+  galbiCtx.save();
+  galbiCtx.beginPath();
+  galbiCtx.ellipse(280, 112, 145, 54, 0, 0, Math.PI * 2);
+  galbiCtx.fillStyle = "#f7f2e8";
+  galbiCtx.fill();
+  galbiCtx.lineWidth = 3;
+  galbiCtx.strokeStyle = "#c9b99e";
+  galbiCtx.stroke();
+  galbiCtx.beginPath();
+  galbiCtx.ellipse(280, 112, 112, 34, 0, 0, Math.PI * 2);
+  galbiCtx.strokeStyle = "rgba(170, 150, 120, 0.35)";
+  galbiCtx.stroke();
+  galbiCtx.restore();
+}
+
+function drawGalbiGrill() {
+  galbiCtx.save();
+  galbiCtx.fillStyle = "#2f2f2f";
+  galbiCtx.fillRect(0, 0, galbiCanvas.width, galbiCanvas.height);
+  galbiCtx.strokeStyle = "rgba(255,255,255,0.22)";
+  galbiCtx.lineWidth = 5;
+  for (let x = -40; x < galbiCanvas.width + 80; x += 44) {
+    galbiCtx.beginPath();
+    galbiCtx.moveTo(x, 0);
+    galbiCtx.lineTo(x - 140, galbiCanvas.height);
+    galbiCtx.stroke();
+  }
+  galbiCtx.strokeStyle = "rgba(0,0,0,0.38)";
+  galbiCtx.lineWidth = 8;
+  for (let y = 22; y < galbiCanvas.height; y += 54) {
+    galbiCtx.beginPath();
+    galbiCtx.moveTo(0, y);
+    galbiCtx.lineTo(galbiCanvas.width, y);
+    galbiCtx.stroke();
+  }
+  galbiCtx.fillStyle = "rgba(0,0,0,0.20)";
+  galbiCtx.fillRect(0, 0, galbiCanvas.width, galbiCanvas.height);
+  galbiCtx.restore();
+}
+
+function drawGalbiFire() {
+  if (galbiState !== "cook" && galbiState !== "result") return;
+  const baseY = 367.5;
+  const xs = [105, 155, 205, 255, 305, 355, 405, 455];
+  for (let i = 0; i < xs.length; i++) {
+    const px = xs[i];
+    const h = 46 + Math.sin(galbiTick * 0.18 + i) * 12;
+    const innerH = 28 + Math.cos(galbiTick * 0.22 + i) * 6;
+    galbiCtx.beginPath();
+    galbiCtx.moveTo(px - 13, baseY);
+    galbiCtx.quadraticCurveTo(px, baseY - h, px + 13, baseY);
+    galbiCtx.closePath();
+    galbiCtx.fillStyle = "orange";
+    galbiCtx.fill();
+    galbiCtx.beginPath();
+    galbiCtx.moveTo(px - 6, baseY);
+    galbiCtx.quadraticCurveTo(px, baseY - innerH, px + 6, baseY);
+    galbiCtx.closePath();
+    galbiCtx.fillStyle = "yellow";
+    galbiCtx.fill();
+  }
+}
+
+function drawGalbiSmoke(p) {
+  if ((galbiState !== "cook" && galbiState !== "result") || p < 0.28)
+    return;
+  galbiCtx.save();
+  galbiCtx.lineWidth = 3;
+  galbiCtx.lineCap = "round";
+  galbiCtx.strokeStyle = "rgba(255, 255, 255, 0.42)";
+  for (let i = 0; i < 5; i++) {
+    const x = 190 + i * 43 + Math.sin(galbiTick * 0.04 + i) * 7;
+    const y = 195 - ((galbiTick * 0.7 + i * 23) % 62);
+    galbiCtx.beginPath();
+    galbiCtx.moveTo(x, y + 38);
+    galbiCtx.bezierCurveTo(x - 16, y + 16, x + 17, y + 8, x - 2, y - 11);
+    galbiCtx.stroke();
+  }
+  galbiCtx.restore();
+}
+
+function getGalbiColors(p) {
+  let meatBase = "#bd5434";
+  let meatShadow = "#81301c";
+  let outline = "#4f160b";
+  let boneOuter = "#f2d49c";
+  let boneInner = "#74401f";
+  let fat = "rgba(255, 218, 162, 0.78)";
+  let glaze = "rgba(255,255,255,0.26)";
+  let char = "rgba(92, 32, 12, 0.42)";
+  if (p >= galbiPerfectStart) {
+    meatBase = "#9c4325";
+    meatShadow = "#682716";
+    outline = "#451008";
+    boneOuter = "#ebc98d";
+    boneInner = "#66351a";
+    fat = "rgba(235, 185, 120, 0.72)";
+    char = "rgba(70, 20, 8, 0.55)";
+  }
+  if (p > 0.78) {
+    meatBase = "#743118";
+    meatShadow = "#4c1c0e";
+    outline = "#331008";
+    boneOuter = "#d7ad76";
+    boneInner = "#552a15";
+    fat = "rgba(205, 145, 82, 0.60)";
+    glaze = "rgba(255,255,255,0.14)";
+    char = "rgba(40, 14, 6, 0.65)";
+  }
+  if (p > 0.9) {
+    meatBase = "#32150f";
+    meatShadow = "#21100b";
+    outline = "#140806";
+    boneOuter = "#9f7a54";
+    boneInner = "#3d2115";
+    fat = "rgba(125, 84, 55, 0.50)";
+    glaze = "rgba(255,255,255,0.07)";
+    char = "rgba(0, 0, 0, 0.72)";
+  }
+  return {
+    meatBase,
+    meatShadow,
+    outline,
+    boneOuter,
+    boneInner,
+    fat,
+    glaze,
+    char,
+  };
+}
+
+function galbiBlobPath(ctx, x, y, w, h) {
+  ctx.beginPath();
+  ctx.moveTo(x - w * 0.46, y - h * 0.18);
+  ctx.bezierCurveTo(
+    x - w * 0.42,
+    y - h * 0.44,
+    x - w * 0.2,
+    y - h * 0.52,
+    x + w * 0.06,
+    y - h * 0.47,
+  );
+  ctx.bezierCurveTo(
+    x + w * 0.33,
+    y - h * 0.43,
+    x + w * 0.5,
+    y - h * 0.22,
+    x + w * 0.48,
+    y + h * 0.03,
+  );
+  ctx.bezierCurveTo(
+    x + w * 0.47,
+    y + h * 0.29,
+    x + w * 0.27,
+    y + h * 0.47,
+    x - w * 0.02,
+    y + h * 0.49,
+  );
+  ctx.bezierCurveTo(
+    x - w * 0.28,
+    y + h * 0.5,
+    x - w * 0.49,
+    y + h * 0.32,
+    x - w * 0.51,
+    y + h * 0.07,
+  );
+  ctx.bezierCurveTo(
+    x - w * 0.52,
+    y - h * 0.04,
+    x - w * 0.51,
+    y - h * 0.12,
+    x - w * 0.46,
+    y - h * 0.18,
+  );
+  ctx.closePath();
+}
+
+function drawGalbi(ctx, x, y, w, h, p, rotation = 0) {
+  const c = getGalbiColors(p);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.translate(-x, -y);
+  ctx.shadowColor = "rgba(0,0,0,0.18)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 4;
+  galbiBlobPath(ctx, x, y, w, h);
+  ctx.fillStyle = c.meatBase;
+  ctx.fill();
+  ctx.lineWidth = Math.max(4, w * 0.022);
+  ctx.strokeStyle = c.outline;
+  ctx.stroke();
+  ctx.save();
+  galbiBlobPath(ctx, x, y, w, h);
+  ctx.clip();
+  const grad = ctx.createRadialGradient(
+    x - w * 0.1,
+    y - h * 0.12,
+    w * 0.05,
+    x,
+    y,
+    w * 0.62,
+  );
+  grad.addColorStop(0, c.meatBase);
+  grad.addColorStop(1, c.meatShadow);
+  ctx.fillStyle = grad;
+  ctx.fillRect(x - w * 0.6, y - h * 0.65, w * 1.2, h * 1.3);
+  const bones = [
+    [-0.22, -0.08, 0.095, 0.105, -0.12],
+    [0.03, -0.13, 0.105, 0.11, 0.08],
+    [0.27, -0.04, 0.09, 0.1, 0.16],
+  ];
+  bones.forEach(([bx, by, brx, bry, ang]) => {
+    ctx.save();
+    ctx.translate(x + w * bx, y + h * by);
+    ctx.rotate(ang);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, w * brx, h * bry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = c.boneOuter;
+    ctx.fill();
+    ctx.lineWidth = Math.max(2.5, w * 0.014);
+    ctx.strokeStyle = c.outline;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(0, 0, w * brx * 0.48, h * bry * 0.44, 0, 0, Math.PI * 2);
+    ctx.fillStyle = c.boneInner;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(
+      -w * brx * 0.22,
+      -h * bry * 0.18,
+      w * brx * 0.16,
+      h * bry * 0.12,
+      -0.3,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fillStyle = "rgba(255, 245, 210, 0.30)";
+    ctx.fill();
+    ctx.restore();
+  });
+  ctx.strokeStyle = c.fat;
+  ctx.lineWidth = Math.max(3, w * 0.018);
+  ctx.lineCap = "round";
+  const marbling = [
+    [-0.38, 0.06, -0.24, -0.01, -0.11, 0.07],
+    [-0.16, 0.2, -0.03, 0.1, 0.13, 0.18],
+    [0.08, 0.08, 0.22, 0.0, 0.38, 0.06],
+    [-0.3, -0.27, -0.12, -0.2, 0.05, -0.25],
+    [0.16, -0.28, 0.29, -0.2, 0.41, -0.11],
+  ];
+  marbling.forEach(([x1, y1, x2, y2, x3, y3]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + w * x1, y + h * y1);
+    ctx.bezierCurveTo(
+      x + w * x2,
+      y + h * y2,
+      x + w * x2,
+      y + h * y2,
+      x + w * x3,
+      y + h * y3,
+    );
+    ctx.stroke();
+  });
+  ctx.fillStyle = c.glaze;
+  const highlights = [
+    [-0.3, -0.18, 0.11, 0.045, -0.55],
+    [-0.06, 0.02, 0.09, 0.038, -0.35],
+    [0.21, -0.18, 0.1, 0.04, -0.4],
+    [0.26, 0.21, 0.08, 0.036, -0.2],
+  ];
+  highlights.forEach(([hx, hy, hrx, hry, ang]) => {
+    ctx.beginPath();
+    ctx.ellipse(
+      x + w * hx,
+      y + h * hy,
+      w * hrx,
+      h * hry,
+      ang,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  });
+  for (let i = 0; i < 22; i++) {
+    const row = i % 7;
+    const col = Math.floor(i / 7);
+    const px = x - w * 0.35 + row * w * 0.11 + (col % 2) * 4;
+    const py = y - h * 0.18 + col * h * 0.15 + Math.sin(i * 1.7) * 4;
+    ctx.beginPath();
+    ctx.ellipse(px, py, w * 0.022, h * 0.026, i * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = i % 2 === 0 ? "rgba(210,105,65,0.30)" : c.char;
+    ctx.fill();
+  }
+  if (p > 0.34) {
+    ctx.strokeStyle = p > 0.9 ? "rgba(0,0,0,0.82)" : c.char;
+    ctx.lineWidth = Math.max(5, w * 0.018);
+    ctx.lineCap = "round";
+    for (let i = 0; i < 5; i++) {
+      const gx = x - w * 0.28 + i * w * 0.14;
+      ctx.beginPath();
+      ctx.moveTo(gx, y - h * 0.24);
+      ctx.lineTo(gx + w * 0.07, y + h * 0.28);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawRawGalbiOnPlate() {
+  drawGalbi(
+    galbiCtx,
+    rawGalbi.x,
+    rawGalbi.y,
+    rawGalbi.w,
+    rawGalbi.h,
+    0.04,
+    -0.05,
+  );
+}
+
+function drawMovingGalbi(p) {
+  const t = galbiSmoothstep(p);
+  const x = galbiLerp(rawGalbi.x, grillGalbi.x, t);
+  const y = galbiLerp(rawGalbi.y, grillGalbi.y, t);
+  const w = galbiLerp(rawGalbi.w, grillGalbi.w, t);
+  const h = galbiLerp(rawGalbi.h, grillGalbi.h, t);
+  const r = galbiLerp(-0.05, 0.03, t);
+  drawGalbi(galbiCtx, x, y, w, h, 0.08, r);
+}
+
+function drawGalbiCookUI() {
+  if (galbiState !== "cook" && galbiState !== "result") return;
+  const barX = 112;
+  const barY = 394;
+  const barW = 336;
+  const barH = 16;
+  galbiCtx.save();
+  galbiCtx.fillStyle = "rgba(255,255,255,0.82)";
+  galbiCtx.fillRect(barX - 18, barY - 18, barW + 36, 50);
+  galbiCtx.strokeStyle = "rgba(0,0,0,0.45)";
+  galbiCtx.lineWidth = 2;
+  galbiCtx.strokeRect(barX, barY, barW, barH);
+  galbiCtx.fillStyle = "rgba(90,180,90,0.45)";
+  galbiCtx.fillRect(
+    barX + barW * galbiPerfectStart,
+    barY,
+    barW * (galbiPerfectEnd - galbiPerfectStart),
+    barH,
+  );
+  let fillColor = "#cb6952";
+  if (galbiProgress >= galbiPerfectStart) fillColor = "#874126";
+  if (galbiProgress > 0.78) fillColor = "#5f2d19";
+  if (galbiProgress > 0.9) fillColor = "#23130d";
+  galbiCtx.fillStyle = fillColor;
+  galbiCtx.fillRect(barX, barY, barW * galbiProgress, barH);
+  galbiCtx.restore();
+}
+
+function updateGalbiGame() {
+  galbiTick++;
+  if (galbiState === "place") {
+    galbiProgress += 0.035;
+    if (galbiProgress >= 1) {
+      galbiProgress = 0;
+      galbiState = "cook";
+      updateCookingSound();
+    }
+  } else if (galbiState === "cook") {
+    galbiProgress += 0.0058;
+    if (galbiProgress >= 1) {
+      galbiProgress = 1;
+    }
+  }
+  updateGalbiButtons();
+}
+
+function drawGalbiGame() {
+  drawGalbiBackground();
+  drawGalbiGrill();
+  drawGalbiFire();
+  drawGalbiPlate();
+  if (galbiState === "idle") {
+    drawRawGalbiOnPlate();
+  }
+  if (galbiState === "place") {
+    drawMovingGalbi(galbiProgress);
+  }
+  if (galbiState === "cook" || galbiState === "result") {
+    drawGalbi(
+      galbiCtx,
+      grillGalbi.x,
+      grillGalbi.y,
+      grillGalbi.w,
+      grillGalbi.h,
+      galbiProgress,
+      0.03,
+    );
+    drawGalbiSmoke(galbiProgress);
+  }
+  drawGalbiCookUI();
+}
+
+function galbiLoop() {
+  updateGalbiGame();
+  drawGalbiGame();
+  requestAnimationFrame(galbiLoop);
+}
+
+/* =========================
+9. 완성버튼(점수매기고 결과나옴)
+========================= */
+
+function finishOrderAndShowResult() {
+  stopTimer();
+  const bowlItems = [...stage.querySelectorAll('.draggable[data-source="false"]')].filter((el) => isInsideBowl(el));
+  const savedIngredients = bowlItems.map((el) =>
+    el.dataset.ingredientName || srcToIngredientName(el.dataset.originalSrc || el.getAttribute("src")),
+  );
+  const servedGalbiData = getServedGalbiData();
+  if (currentOrderIngredients.includes("galbi") && servedGalbiData) {
+    savedIngredients.push("galbi");
+  }
+  const matchPercent = calculateMatchPercent(currentOrderIngredients, savedIngredients);
+  const resultBreakdown = buildCookResultBreakdown(matchPercent, bowlItems);
+  console.log("Saved bowl:", savedIngredients);
+  console.log("Match percent:", matchPercent + "%");
+  console.log("Result breakdown:", resultBreakdown);
+  console.log("Time left:", timeLeft + "s");
+  pendingCookResult = {
+    bowlItems,
+    savedIngredients,
+    matchPercent,
+    tipAmount: resultBreakdown.totalTip,
+  };
+  applyTipAmount(resultBreakdown.totalTip);
+  active = null;
+  document.body.classList.remove("hide-cursor");
+  showCookResultOverlay(resultBreakdown);
+}
+
+function calculateMatchPercent(orderArray, bowlArray) {
+  if (!orderArray.length) return 0;
+  const orderCounts = new Map();
+  const bowlCounts = new Map();
+  orderArray.forEach((item) => {
+    orderCounts.set(item, (orderCounts.get(item) || 0) + 1);
+  });
+  bowlArray.forEach((item) => {
+    bowlCounts.set(item, (bowlCounts.get(item) || 0) + 1);
+  });
+  let matchedCount = 0;
+  orderCounts.forEach((orderCount, item) => {
+    const bowlCount = bowlCounts.get(item) || 0;
+    matchedCount += Math.min(orderCount, bowlCount);
+  });
+  return Math.round((matchedCount / orderArray.length) * 100);
+}
+
+function getAccuracyTipAmount(matchPercent) {
+  if (matchPercent === 100) {
+    return 5;
+  } else if (matchPercent >= 90) {
+    return 3.5;
+  } else if (matchPercent >= 80) {
+    return 1.5;
+  } else if (matchPercent >= 55) {
+    return 0;
+  }
+  return -3;
+}
+
+function getSpeedTipAmount(secondsLeft) {
+  if (secondsLeft >= 40) {
+    return 1;
+  } else if (secondsLeft >= 20) {
+    return 0.5;
+  }
+  return 0;
+}
+
+function getEggCookingStateFromBowl(orderArray, bowlItems) {
+  if (!orderArray.includes("fried egg")) {
+    return "not ordered";
+  }
+  const eggItem = bowlItems.find(
+    (el) =>
+      (el.dataset.ingredientName ||
+        srcToIngredientName(
+          el.dataset.originalSrc || el.getAttribute("src"),
+        )) === "fried egg",
+  );
+  if (!eggItem) {
+    return "missing";
+  }
+  return eggItem.dataset.cookingState || "unknown";
+}
+
+function getEggCookingTipAmount(eggCookingState) {
+  const eggTipMap = {
+    "not ordered": 0,
+    missing: 0,
+    perfect: 2,
+    overcooked: 0,
+    undercooked: 0,
+    burnt: -1,
+    unknown: 0,
+  };
+  return eggTipMap[eggCookingState] || 0;
+}
+
+function getServedGalbiData() {
+  const saved = localStorage.getItem("servedGalbi");
+  if (!saved) return null;
+  try {
+    return JSON.parse(saved);
+  } catch (error) {
+    return null;
+  }
+}
+
+function getGalbiCookingStateFromServed(orderArray) {
+  if (!orderArray.includes("galbi")) {
+    return "not ordered";
+  }
+  const servedGalbiData = getServedGalbiData();
+  if (!servedGalbiData) {
+    return "missing";
+  }
+  return servedGalbiData.cookingState || "unknown";
+}
+
+function getGalbiCookingTipAmount(galbiCookingState) {
+  const galbiTipMap = {
+    "not ordered": 0,
+    missing: 0,
+    perfect: 2,
+    overcooked: 0,
+    undercooked: 0,
+    burnt: -1,
+    unknown: 0,
+  };
+  return galbiTipMap[galbiCookingState] || 0;
+}
+
+function formatTipNumber(amount) {
+  return String(Math.round(amount));
+}
+
+function formatTipAmount(amount) {
+  if (amount > 0) {
+    return "+$" + formatTipNumber(amount);
+  } else if (amount < 0) {
+    return "-$" + formatTipNumber(Math.abs(amount));
+  }
+  return "$0";
+}
+
+function buildCookResultBreakdown(matchPercent, bowlItems) {
+  const eggCookingState = getEggCookingStateFromBowl(
+    currentOrderIngredients,
+    bowlItems,
+  );
+  const galbiCookingState = getGalbiCookingStateFromServed(
+    currentOrderIngredients,
+  );
+  const accuracyTip = Math.round(getAccuracyTipAmount(matchPercent));
+  const speedTip = Math.round(getSpeedTipAmount(timeLeft));
+  const eggTip = Math.round(getEggCookingTipAmount(eggCookingState));
+  const galbiTip = Math.round(
+    getGalbiCookingTipAmount(galbiCookingState),
+  );
+  const totalTip = accuracyTip + speedTip + eggTip + galbiTip;
+  return {
+    matchPercent,
+    timeLeft,
+    eggCookingState,
+    galbiCookingState,
+    accuracyTip,
+    speedTip,
+    eggTip,
+    galbiTip,
+    totalTip,
+  };
+}
+
+function applyTipAmount(tipAmount) {
+  totalTips += tipAmount;
+  updateTipDisplay();
+  console.log("Tip earned:", "$" + tipAmount);
+  console.log("Total tips:", "$" + totalTips);
+  return tipAmount;
+}
+
+function showCookResultOverlay(result) {
+  resultAccuracyDetail.textContent = result.matchPercent + "% matched";
+  resultAccuracyTip.textContent = formatTipAmount(result.accuracyTip);
+  resultSpeedDetail.textContent = formatTime(result.timeLeft) + " left";
+  resultSpeedTip.textContent = formatTipAmount(result.speedTip);
+  resultEggDetail.textContent = result.eggCookingState;
+  resultEggTip.textContent = formatTipAmount(result.eggTip);
+  resultGalbiDetail.textContent = result.galbiCookingState;
+  resultGalbiTip.textContent = formatTipAmount(result.galbiTip);
+  resultTotalTip.textContent = formatTipAmount(result.totalTip);
+  cookResultOverlay.style.display = "flex";
+}
+
+function hideCookResultOverlay() {
+  cookResultOverlay.style.display = "none";
+}
+
+function formatTotalTipAmount(amount) {
+  const roundedAmount = Math.round(amount);
+  if (roundedAmount < 0) {
+    return "-$" + Math.abs(roundedAmount);
+  }
+  return "$" + roundedAmount;
+}
+
+function updateTipDisplay() {
+  tipTotalText.textContent = formatTotalTipAmount(totalTips);
+}
+
+/* =========================
+10. next버튼 (손님 화면으로 돌아가고 말나옴)
+========================= */
+
+function finishCookResultToCustomer() {
+  if (!pendingCookResult) return;
+  pendingCookResult.bowlItems.forEach((el) => el.remove());
+  hideCookResultOverlay();
+  showCustomerScreenFromCook();
+  typeCustomerText(
+    getCustomerMessageFromTipAmount(pendingCookResult.tipAmount),
+  );
+  showResultScreen();
+  playCustomerFloatingImages(pendingCookResult.tipAmount);
+  pendingCookResult = null;
+}
+
+function showCustomerScreenFromCook() {
+  updateResponsiveLayout();
+  pauseCookingSound();
+  mainScreen.style.display = "none";
+  cookScreen.style.display = "none";
+  eggScreen.style.display = "none";
+  pauseScreen.style.display = "none";
+  customerScreen.style.display = "flex";
+  document.title = "customer";
+  pauseMainBGM();
+  setCustomerTextInstant("");
+  showTipsBox();
+}
+
+function showResultScreen() {
+  cookBtn.style.display = "none";
+  nextCustomerBtn.style.display = "inline-block";
+}
+
+function getEnglishCustomerMessageFromTipAmount(tipAmount) {
+  if (tipAmount >= 7) {
+    return "WOW!! This is amazing!!";
+  } else if (tipAmount >= 5) {
+    return "This is really great!";
+  } else if (tipAmount >= 3) {
+    return "Thank you! I liked it.";
+  } else if (tipAmount > 0) {
+    return "Thanks.";
+  } else if (tipAmount === 0) {
+    return "Okay.";
+  }
+  return "I don't like this...";
+}
+
+function getKoreanCustomerMessageFromTipAmount(tipAmount) {
+  if (tipAmount >= 7) {
+    return "와!! 개존맛이네요!!";
+  } else if (tipAmount >= 5) {
+    return "또올게요 감사해요!";
+  } else if (tipAmount >= 3) {
+    return "감사합니다! 맛있었어요.";
+  } else if (tipAmount > 0) {
+    return "감사합니다.";
+  } else if (tipAmount === 0) {
+    return "안녕히 계세요.";
+  }
+  return "...쩝..";
+}
+
+function getCustomerMessageFromTipAmount(tipAmount) {
+  if (currentCustomerImageNumber === 7) {
+    return getKoreanCustomerMessageFromTipAmount(tipAmount);
+  }
+  return getEnglishCustomerMessageFromTipAmount(tipAmount);
+}
+
+function playCustomerFloatingImages(tipAmount) {
+  const scene = document.querySelector("#customerScreen .scene");
+  const positions = [
+    { left: 1280, top: 300 },
+    { left: 1110, top: 210 },
+    { left: 940, top: 300 },
+  ];
+  positions.forEach((pos, index) => {
+    const img = document.createElement("img");
+    if (tipAmount > 0) {
+      img.src = "PR.money.jpg";
+    } else if (tipAmount < 0) {
+      img.src = "PR.rage.png";
+    } else {
+      return;
+    }
+    img.className = "floating-reward";
+    img.style.left = pos.left + "px";
+    img.style.top = pos.top + "px";
+    img.style.animationDelay = index * 0.15 + "s";
+    scene.appendChild(img);
+    img.addEventListener("animationend", () => {
+      img.remove();
+    });
+  });
+}
+
+/* =========================
+11. 일시정지버튼
+========================= */
+
+function showPauseScreen() {
+  pauseCookingSound();
+  mainScreen.style.display = "none";
+  customerScreen.style.display = "none";
+  cookScreen.style.display = "none";
+  eggScreen.style.display = "none";
+  pauseScreen.style.display = "flex";
+  document.title = "Paused";
+  pauseMainBGM();
+  hideTipsBox();
+  active = null;
+  document.body.classList.remove("hide-cursor");
+}
+
+function resumeCookScreen() {
+  updateResponsiveLayout();
+  pauseCookingSound();
+  mainScreen.style.display = "none";
+  customerScreen.style.display = "none";
+  eggScreen.style.display = "none";
+  pauseScreen.style.display = "none";
+  cookScreen.style.display = "block";
+  document.title = "Drag Image";
+  pauseMainBGM();
+  hideTipsBox();
+}
+
+function resetGameExceptTips() {
+  stopTimer();
+  currentOrderIngredients = [];
+  setCustomerTextInstant("");
+  cookOrderText.textContent = "";
+  active = null;
+  document.body.classList.remove("hide-cursor");
+  timeLeft = TOTAL_TIME;
+  updateTimerDisplay();
+  stage.dataset.riceChosen = "false";
+  stage
+    .querySelectorAll('.draggable[data-source="false"]')
+    .forEach((el) => {
+      el.remove();
+    });
+  stage
+    .querySelectorAll('.draggable[data-source="true"]')
+    .forEach((el) => {
+      el.dataset.used = "false";
+      el.style.pointerEvents = "";
+      el.style.display = "";
+      if (el.dataset.originalSrc) {
+        el.setAttribute("src", el.dataset.originalSrc);
+      }
+    });
+  resetCookEggSource();
+  resetEggGame();
+  resetGalbiGame();
+  hideCookResultOverlay();
+  pendingCookResult = null;
+  localStorage.removeItem("servedEgg");
+  localStorage.removeItem("servedGalbi");
+  nextCustomerBtn.style.display = "none";
+  cookBtn.style.display = "inline-block";
+}
+
+function showTimeFailMessage() {
+  const timePenalty = -3;
+  totalTips += timePenalty;
+  updateTipDisplay();
+  typeCustomerText("Too slow... ");
+  console.log("Time failed:", "$" + timePenalty);
+  console.log("Total tips:", "$" + totalTips);
+}
+
+/* =========================
+12. 버튼들 연결, 게임실행
+========================= */
+
+function playButtonSoundWhenButtonIsClicked(e) {
+  const clickedButton = e.target.closest("button");
+  if (!clickedButton || clickedButton.disabled) return;
+  playButtonSound();
+}
+
+function bindGameEvents() {
+  document.addEventListener("click", playButtonSoundWhenButtonIsClicked);
+  window.addEventListener("load", playMainBGM);
+  document.addEventListener("pointerdown", tryStartMainBGMAfterInteraction, { once: true });
+  document.addEventListener("keydown", tryStartMainBGMAfterInteraction, { once: true });
+  window.addEventListener("resize", () => {
+    updateResponsiveLayout();
+    keepFloatingBowlsInsideWindow();
+  });
+
+  // 1) 메인화면 -> 손님 주문화면
+  playBtn.addEventListener("click", startGameFromMain);
+
+  // 2) 손님 주문화면 -> 조리화면
+  cookBtn.addEventListener("click", startCookFromCustomer);
+  nextCustomerBtn.addEventListener("click", showNewCustomerOrder);
+
+  // 3) 조리화면 -> 갈비계란게임 -> 다시 조리화면
+  toEggBtn.addEventListener("click", showEggScreen);
+  backToCookBtn.addEventListener("click", showCookScreen);
+
+  // 4) 일시정지, 나가기
+  pauseBtn.addEventListener("click", () => {
+    pauseTimer();
+    showPauseScreen();
+  });
+  resumeBtn.addEventListener("click", () => {
+    resumeCookScreen();
+    resumeTimer();
+  });
+  exitBtn.addEventListener("click", () => {
+    resetGameExceptTips();
+    showMainScreen();
+  });
+
+  // 5) 조리화면 재료 드레그
+  stage.addEventListener("pointerdown", startIngredientDrag);
+  stage.addEventListener("pointermove", moveIngredientDrag);
+  stage.addEventListener("pointerup", finishCurrentDrag);
+  stage.addEventListener("pointercancel", finishCurrentDrag);
+
+  // 6) 갈비계란 만들기 컨트롤
+  eggCanvas.addEventListener("click", handleEggCanvasClick);
+  eggRemakeBtn.addEventListener("click", remakeEgg);
+  eggServeBtn.addEventListener("click", serveEgg);
+  eggCompleteBtn.addEventListener("click", completeEgg);
+  galbiCanvas.addEventListener("click", handleGalbiCanvasClick);
+  galbiRemakeBtn.addEventListener("click", remakeGalbi);
+  galbiServeBtn.addEventListener("click", serveGalbi);
+  galbiCompleteBtn.addEventListener("click", completeGalbi);
+
+  // 7) 결과화면 -> 손님반응
+  completeBtn.addEventListener("click", finishOrderAndShowResult);
+  cookResultNextBtn.addEventListener("click", finishCookResultToCustomer);
+}
+
+initializeGame();
+</script>
+</body>
+</html>
